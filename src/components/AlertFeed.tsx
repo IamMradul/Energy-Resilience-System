@@ -1,3 +1,46 @@
-import React from 'react';
 import { Bell } from 'lucide-react';
-export default function AlertFeed() { return <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg p-4 w-80 z-50"><div className="flex items-center gap-2 font-bold mb-3 border-b border-border pb-2"><Bell className="w-4 h-4 text-warning"/> Live Intel Feed</div><div className="flex flex-col gap-3 text-xs"><div className="text-gray-300"><span className="text-danger font-bold">[14:02]</span> Missile strike reported near Bab el-Mandeb strait.</div><div className="text-gray-300"><span className="text-warning font-bold">[13:45]</span> VLCC tanker rates spike 12% in Persian Gulf.</div></div></div>; }
+import { useRealtimeAlerts } from '../hooks/useRealtimeAlerts';
+
+function timeAgo(dateString?: string) {
+  if (!dateString) return 'Just now';
+  const seconds = Math.floor((new Date().getTime() - new Date(dateString).getTime()) / 1000);
+  if (seconds < 60) return `${seconds} sec ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours} hr ago`;
+}
+
+function getSeverityColor(severity: string) {
+  switch (severity) {
+    case 'CRITICAL': return 'text-danger';
+    case 'HIGH': return 'text-warning';
+    case 'MEDIUM': return 'text-yellow-400';
+    case 'LOW': return 'text-success';
+    default: return 'text-gray-300';
+  }
+}
+
+export default function AlertFeed() {
+  const { alerts, loading } = useRealtimeAlerts();
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg p-4 w-80 z-50">
+      <div className="flex items-center gap-2 font-bold mb-3 border-b border-border pb-2">
+        <Bell className="w-4 h-4 text-warning" /> Live Intel Feed
+      </div>
+      <div className="flex flex-col gap-3 text-xs max-h-64 overflow-y-auto custom-scrollbar pr-1">
+        {loading && <div className="text-gray-500 italic">Connecting to live feed...</div>}
+        {!loading && alerts.length === 0 && <div className="text-gray-500 italic">No recent alerts.</div>}
+        {alerts.map((alert) => (
+          <div key={alert.id} className="text-gray-300">
+            <span className={`${getSeverityColor(alert.severity)} font-bold mr-1`}>
+              [{timeAgo(alert.created_at)}]
+            </span>
+            {alert.title}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
