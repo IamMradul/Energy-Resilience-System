@@ -1,0 +1,3 @@
+import React from 'react';
+import { Bell } from 'lucide-react';
+export default function AlertFeed() { return <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg p-4 w-80 z-50"><div className="flex items-center gap-2 font-bold mb-3 border-b border-border pb-2"><Bell className="w-4 h-4 text-warning"/> Live Intel Feed</div><div className="flex flex-col gap-3 text-xs"><div className="text-gray-300"><span className="text-danger font-bold">[14:02]</span> Missile strike reported near Bab el-Mandeb strait.</div><div className="text-gray-300"><span className="text-warning font-bold">[13:45]</span> VLCC tanker rates spike 12% in Persian Gulf.</div></div></div>; }

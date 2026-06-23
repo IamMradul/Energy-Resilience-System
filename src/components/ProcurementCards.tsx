@@ -1,0 +1,4 @@
+import React from 'react';
+export default function ProcurementCards() { return <div className="flex flex-col gap-3"><Card source="Russian Urals (East)" eta="14 days" price="$72/bbl" match="94%" /> <Card source="US WTI" eta="28 days" price="$81/bbl" match="88%" /> <Card source="West African Bonny Light" eta="21 days" price="$84/bbl" match="98%" /></div>; }
+
+function Card({source, eta, price, match}: any) { return <div className="border border-border rounded bg-background p-3 flex justify-between items-center"><div><div className="font-semibold">{source}</div><div className="text-xs text-gray-400">ETA: {eta} | Match: {match}</div></div><div className="font-bold text-primary">{price}</div></div>; }

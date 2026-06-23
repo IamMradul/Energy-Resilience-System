@@ -1,0 +1,2 @@
+import React from 'react';
+export default function SPRTimeline() { return <div className="text-sm"><div className="flex justify-between mb-1"><span>Current SPR</span> <span className="text-warning">9.5 Days</span></div><div className="w-full bg-border h-4 rounded overflow-hidden"><div className="bg-warning h-full" style={{width: '25%'}}></div></div><div className="mt-4">Optimal Drawdown:<br/><span className="text-gray-400">Day 1-5: 200k bpd</span><br/><span className="text-gray-400">Day 6-10: 450k bpd</span></div></div>; }
