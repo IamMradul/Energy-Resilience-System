@@ -26,8 +26,9 @@ export function useRealtimeAlerts() {
 
     fetchInitial();
 
+    const channelName = `alert_feed_changes_${Math.random().toString(36).substring(7)}`;
     const subscription = supabase
-      .channel('alert_feed_changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'alert_feed' },
@@ -40,7 +41,7 @@ export function useRealtimeAlerts() {
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      supabase.removeChannel(subscription);
     };
   }, []);
 

@@ -5,6 +5,24 @@ import { runSPRAgent } from './sprAgent';
 
 let isRunning = false;
 
+async function runWithRetry<T>(
+  fn: () => Promise<T>, 
+  retries = 2,
+  delayMs = 2000
+): Promise<T | null> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (i < retries) {
+        console.warn(`Agent retry ${i + 1}/${retries}`);
+        await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+      }
+    }
+  }
+  return null;
+}
+
 export async function runAllAgents(): Promise<any> {
   if (isRunning) {
     console.log('[Orchestrator] Agents already running, skipping this cycle.');
@@ -12,14 +30,19 @@ export async function runAllAgents(): Promise<any> {
   }
   
   isRunning = true;
-  const startTime = Date.now();
+  const startTime = performance.now();
   let geminiCalls = 0;
 
   try {
     console.log('[Orchestrator] Starting agents...');
     
+    // Notify health hook that run started
+    window.dispatchEvent(new CustomEvent('agent-run-update', { 
+      detail: { nextRun: new Date(Date.now() + 5 * 60 * 1000) } 
+    }));
+    
     // 1. Run geopoliticalRiskAgent
-    const riskDataArray = await runGeopoliticalRiskAgent();
+    const riskDataArray = await runWithRetry(() => runGeopoliticalRiskAgent());
     geminiCalls++;
     
     if (!riskDataArray || riskDataArray.length === 0) {
@@ -34,7 +57,7 @@ export async function runAllAgents(): Promise<any> {
     if (riskData.risk_score > 50) {
       await new Promise(r => setTimeout(r, 2000));
       console.log('[Orchestrator] Risk > 50. Running Procurement Agent...');
-      await runProcurementAgent(riskData.corridor, riskData.risk_score);
+      await runWithRetry(() => runProcurementAgent(riskData.corridor, riskData.risk_score));
       geminiCalls++;
     }
 
@@ -50,7 +73,7 @@ export async function runAllAgents(): Promise<any> {
         eventType = "red_sea_suspension";
       }
 
-      const scenarioData = await runScenarioAgent(eventType);
+      const scenarioData = await runWithRetry(() => runScenarioAgent(eventType));
       geminiCalls++;
 
       // 4. If scenario run, calculate supplyGap and run sprAgent
@@ -61,13 +84,18 @@ export async function runAllAgents(): Promise<any> {
         const dropPct = scenarioData.impacts?.refinery_run_rate_drop_pct || 20;
         const supplyGapMbpd = (4.5 * (dropPct / 100)).toFixed(2);
         
-        await runSPRAgent(parseFloat(supplyGapMbpd));
+        await runWithRetry(() => runSPRAgent(parseFloat(supplyGapMbpd)));
         geminiCalls++;
       }
     }
 
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[Orchestrator] All agents completed in ${elapsed}s, ${geminiCalls} Gemini calls made`);
+    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+    console.log(`✅ All agents completed in ${elapsed}s, ${geminiCalls} Gemini calls made`);
+    
+    // Notify health hook that run completed
+    window.dispatchEvent(new CustomEvent('agent-run-update', { 
+      detail: { lastRun: new Date() } 
+    }));
     
     return {
       success: true,

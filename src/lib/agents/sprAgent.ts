@@ -1,8 +1,16 @@
 import { callGemini } from '../gemini';
+import { getCached, setCached } from '../cache';
 import { saveSprPlan } from '../supabase';
 import type { SPRPlan } from '../../types/agents';
 
 export async function runSPRAgent(supplyGapMbpd: number): Promise<SPRPlan | null> {
+  const cacheKey = `spr_${supplyGapMbpd}`;
+  const cached = getCached<SPRPlan>(cacheKey);
+  if (cached) {
+    console.log('[SPR Agent] Returning cached data');
+    return cached;
+  }
+
   const prompt = `You are an energy security advisor to India's Ministry of Petroleum and Natural Gas (MoPNG).
 
 Current situation:
@@ -39,6 +47,7 @@ Return ONLY valid JSON, no markdown:
     // Save to Supabase
     await saveSprPlan(sprData);
     
+    setCached(cacheKey, sprData, 15 * 60 * 1000); // 15 min TTL
     return sprData;
   } catch (error) {
     console.error('[SPR Agent] Failed to parse JSON from Gemini:', jsonStr, error);

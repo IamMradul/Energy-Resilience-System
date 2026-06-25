@@ -65,3 +65,49 @@ export interface AlertFeedItem {
   corridor: string
   created_at?: string
 }
+
+export interface Vessel {
+  mmsi: string
+  name: string
+  type: 'VLCC' | 'Suezmax' | 'Aframax' | 'Panamax'
+  flag: string
+  lat: number
+  lng: number
+  speed: number
+  heading: number
+  destination: string
+  cargo: string
+  status: 'UNDERWAY' | 'AT ANCHOR' | 'APPROACHING PORT' | 'DIVERTED'
+  alert?: string
+}
+
+export interface GraphNode {
+  name: string
+  type: 'Supplier' | 'Chokepoint' | 'Port' | 'Refinery'
+  riskScore?: number
+  capacity?: number
+  lat?: number
+  lng?: number
+}
+
+export interface GraphEdge {
+  from: string
+  to: string
+  type: 'SUPPLIES_THROUGH' | 'ROUTES_TO' | 'FEEDS'
+  volume?: number
+  riskScore?: number
+}
+
+export interface SystemHealth {
+  supabase: 'ok' | 'error' | 'checking'
+  neo4j: 'ok' | 'error' | 'checking'
+  geminiUsage: {
+    callsThisMinute: number
+    tokensToday: number
+    remainingTokensToday: number
+    withinLimits: boolean
+  }
+  lastAgentRun: Date | null
+  nextAgentRun: Date | null
+  activeVessels: number
+}

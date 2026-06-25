@@ -1,8 +1,16 @@
 import { callGemini } from '../gemini';
+import { getCached, setCached } from '../cache';
 import { saveProcurementRecs } from '../supabase';
 import type { ProcurementRec } from '../../types/agents';
 
 export async function runProcurementAgent(corridor: string, riskScore: number): Promise<ProcurementRec[]> {
+  const cacheKey = `procurement_${corridor}_${riskScore}`;
+  const cached = getCached<ProcurementRec[]>(cacheKey);
+  if (cached) {
+    console.log('[Procurement Agent] Returning cached data');
+    return cached;
+  }
+
   let wtiPrice = "$83.50";
   const alphaVantageKey = import.meta.env.VITE_ALPHA_VANTAGE_KEY || '';
 
@@ -65,6 +73,7 @@ Return ONLY a valid JSON array. No markdown, no explanation:
       await saveProcurementRecs(recs);
     }
     
+    setCached(cacheKey, recs, 10 * 60 * 1000); // 10 min TTL
     return recs;
   } catch (error) {
     console.error('[Procurement Agent] Failed to parse JSON from Gemini:', jsonStr, error);

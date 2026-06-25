@@ -398,17 +398,20 @@ API rate limits and auth setup should not block UI development. The simulation l
 - [x] Recharts scenario waterfall + SPR timeline
 - [x] Live alert feed simulation
 
-### Phase 2 — Real API Integration
-- [ ] NewsAPI → Gemini pipeline for live geopolitical risk scoring
-- [ ] Alpha Vantage crude price feeds
-- [ ] Supabase Realtime replacing simulation hooks
-- [ ] MarineTraffic AIS vessel overlay
+### Phase 2 — Real API Integration (Completed)
+- [x] NewsAPI → Gemini pipeline for live geopolitical risk scoring
+- [x] Alpha Vantage crude price feeds
+- [x] Supabase Realtime replacing simulation hooks
 
-### Phase 3 — Production
-- [ ] Neo4j knowledge graph (supplier → route → refinery relationships)
+### Phase 3 — Production & Knowledge Graph (Completed)
+- [x] Neo4j AuraDB knowledge graph (supplier → route → refinery relationships)
+- [x] AIS Vessel Tracking simulation with MarineTraffic-like data
+- [x] Production Hardening: Gemini rate limiting, caching, and system health checks
+- [x] Live Supply Chain Topology SVG visualisation
+
+### Phase 4 — Future Enhancements
 - [ ] LangGraph multi-agent orchestration with memory
 - [ ] Gemini 1.5 Pro for scenario modelling (higher reasoning depth)
-- [ ] SPR integration with MoPNG data feeds
 - [ ] Export: PDF briefing generator for policymakers
 
 ---

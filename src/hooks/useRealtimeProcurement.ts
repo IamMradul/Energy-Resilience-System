@@ -19,8 +19,9 @@ export function useRealtimeProcurement() {
 
     fetchInitial();
 
+    const channelName = `procurement_recs_changes_${Math.random().toString(36).substring(7)}`;
     const subscription = supabase
-      .channel('procurement_recs_changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'procurement_recs' },
@@ -34,7 +35,7 @@ export function useRealtimeProcurement() {
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      supabase.removeChannel(subscription);
     };
   }, []);
 

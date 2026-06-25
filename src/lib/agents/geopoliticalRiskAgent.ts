@@ -1,6 +1,8 @@
 import { callGemini } from '../gemini';
 import { saveRiskScore, saveAlert } from '../supabase';
 import type { RiskScore } from '../../types/agents';
+import { getCached, setCached } from '../cache';
+import { getRefineriasAtRisk, findAlternativeRoutes } from '../knowledge-graph/graphQueries';
 
 const FALLBACK_HEADLINES = [
   "US imposes new sanctions on Iranian oil exports",
@@ -10,7 +12,14 @@ const FALLBACK_HEADLINES = [
   "Brent crude surges 6% on Strait of Hormuz closure fears"
 ];
 
-export async function runGeopoliticalRiskAgent(): Promise<RiskScore[] | null> {
+export async function runGeopoliticalRiskAgent(): Promise<any[] | null> {
+  const cacheKey = 'geopolitical_risk';
+  const cached = getCached<any[]>(cacheKey);
+  if (cached) {
+    console.log('[Geopolitical Agent] Returning cached data');
+    return cached;
+  }
+
   let headlines: string[] = [];
   const newsApiKey = import.meta.env.VITE_NEWS_API_KEY || '';
 
@@ -59,24 +68,41 @@ Return ONLY a valid JSON ARRAY containing exactly 4 objects. No markdown, no exp
   if (!jsonStr) return null;
 
   try {
-    const riskDataArray: RiskScore[] = JSON.parse(jsonStr);
+    const riskDataArray: any[] = JSON.parse(jsonStr);
     
     // Save all to Supabase in one batch
-    await saveRiskScore(riskDataArray);
+    await saveRiskScore(riskDataArray as RiskScore[]);
     
     // Create Alerts for any high-risk corridors
     for (const riskData of riskDataArray) {
       if (riskData.risk_score > 50) {
+        let alertTitle = `Risk score updated: ${riskData.corridor} at ${riskData.risk_score}/100`;
         const severity = riskData.risk_score > 70 ? "CRITICAL" : "HIGH";
+        
+        try {
+          const refineriesAtRisk = await getRefineriasAtRisk(riskData.corridor);
+          const alternativeRoutes = await findAlternativeRoutes(riskData.corridor);
+          
+          if (refineriesAtRisk.length > 0) {
+            alertTitle = `${refineriesAtRisk.length} refineries at risk via ${riskData.corridor}: ${refineriesAtRisk.map((r: any) => r.refinery).join(', ')}`;
+          }
+          
+          riskData.refineriesAtRisk = refineriesAtRisk;
+          riskData.alternativeRoutes = alternativeRoutes;
+        } catch (e) {
+          console.warn('[Geopolitical Agent] Graph enrichment failed, skipping for alert');
+        }
+
         await saveAlert({
-          title: `Risk score updated: ${riskData.corridor} at ${riskData.risk_score}/100`,
+          title: alertTitle,
           severity,
           corridor: riskData.corridor,
-          source: 'Geopolitical Risk Agent'
+          source: 'Knowledge Graph'
         });
       }
     }
 
+    setCached(cacheKey, riskDataArray, 5 * 60 * 1000); // 5 min TTL
     return riskDataArray;
   } catch (error) {
     console.error('[Geopolitical Agent] Failed to parse JSON from Gemini:', jsonStr, error);

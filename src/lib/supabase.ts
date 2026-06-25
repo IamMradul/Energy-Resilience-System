@@ -98,14 +98,13 @@ export async function getLatestScenario(eventType: string) {
       .select('*')
       .eq('event_type', eventType)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
       
-    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+    if (error) {
       console.error('Error fetching scenario:', error);
       return null;
     }
-    return data as ScenarioResult | null;
+    return data && data.length > 0 ? (data[0] as ScenarioResult) : null;
   } catch (err) {
     console.error('Exception fetching scenario:', err);
     return null;

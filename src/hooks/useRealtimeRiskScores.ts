@@ -34,8 +34,9 @@ export function useRealtimeRiskScores() {
 
     fetchInitial();
 
+    const channelName = `risk_scores_changes_${Math.random().toString(36).substring(7)}`;
     const subscription = supabase
-      .channel('risk_scores_changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'risk_scores' },
@@ -51,7 +52,7 @@ export function useRealtimeRiskScores() {
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      supabase.removeChannel(subscription);
     };
   }, []);
 

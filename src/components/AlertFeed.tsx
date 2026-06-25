@@ -27,7 +27,7 @@ export default function AlertFeed() {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg w-80 z-50 transition-all duration-300">
+    <div className="fixed bottom-14 right-4 bg-card border border-border shadow-lg rounded-lg w-80 z-50 transition-all duration-300">
       <div 
         className="flex items-center justify-between font-bold p-3 cursor-pointer hover:bg-white/5 rounded-t-lg transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}

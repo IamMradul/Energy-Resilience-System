@@ -1,8 +1,16 @@
 import { callGemini } from '../gemini';
+import { getCached, setCached } from '../cache';
 import { saveScenario } from '../supabase';
 import type { ScenarioResult } from '../../types/agents';
 
 export async function runScenarioAgent(eventType: string): Promise<ScenarioResult | null> {
+  const cacheKey = `scenario_${eventType}`;
+  const cached = getCached<ScenarioResult>(cacheKey);
+  if (cached) {
+    console.log('[Scenario Agent] Returning cached data');
+    return cached;
+  }
+
   const eventDescriptions: Record<string, string> = {
     "hormuz_closure_40pct": "40% of Hormuz traffic disrupted for 14 days",
     "opec_emergency_cut": "OPEC+ emergency cut of 2M barrels per day",
@@ -59,6 +67,7 @@ Return ONLY valid JSON, no markdown:
     // Save to Supabase
     await saveScenario(scenarioData);
     
+    setCached(cacheKey, scenarioData, 30 * 60 * 1000); // 30 min TTL
     return scenarioData;
   } catch (error) {
     console.error('[Scenario Agent] Failed to parse JSON from Gemini:', jsonStr, error);
