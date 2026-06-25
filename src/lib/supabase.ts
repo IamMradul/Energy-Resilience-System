@@ -6,9 +6,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function saveRiskScore(data: RiskScore) {
+export async function saveRiskScore(data: RiskScore | RiskScore[]) {
   try {
-    const { error } = await supabase.from('risk_scores').insert(data);
+    const { error } = await supabase.from('risk_scores').insert(data as any);
     if (error) console.error('Error saving risk score:', error);
   } catch (err) {
     console.error('Exception saving risk score:', err);

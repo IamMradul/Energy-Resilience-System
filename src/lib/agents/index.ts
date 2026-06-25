@@ -3,7 +3,15 @@ import { runProcurementAgent } from './procurementAgent';
 import { runScenarioAgent } from './scenarioAgent';
 import { runSPRAgent } from './sprAgent';
 
+let isRunning = false;
+
 export async function runAllAgents(): Promise<any> {
+  if (isRunning) {
+    console.log('[Orchestrator] Agents already running, skipping this cycle.');
+    return { success: false, reason: 'Already running' };
+  }
+  
+  isRunning = true;
   const startTime = Date.now();
   let geminiCalls = 0;
 
@@ -11,16 +19,20 @@ export async function runAllAgents(): Promise<any> {
     console.log('[Orchestrator] Starting agents...');
     
     // 1. Run geopoliticalRiskAgent
-    const riskData = await runGeopoliticalRiskAgent();
+    const riskDataArray = await runGeopoliticalRiskAgent();
     geminiCalls++;
     
-    if (!riskData) {
+    if (!riskDataArray || riskDataArray.length === 0) {
       console.log('[Orchestrator] Failed to get risk data. Aborting pipeline.');
       return;
     }
 
+    // Pick the highest risk score to drive the rest of the pipeline
+    const riskData = riskDataArray.reduce((max, obj) => obj.risk_score > max.risk_score ? obj : max, riskDataArray[0]);
+
     // 2. If riskData.risk_score > 50, run procurementAgent
     if (riskData.risk_score > 50) {
+      await new Promise(r => setTimeout(r, 2000));
       console.log('[Orchestrator] Risk > 50. Running Procurement Agent...');
       await runProcurementAgent(riskData.corridor, riskData.risk_score);
       geminiCalls++;
@@ -28,6 +40,7 @@ export async function runAllAgents(): Promise<any> {
 
     // 3. If riskData.risk_score > 70, run scenarioAgent
     if (riskData.risk_score > 70) {
+      await new Promise(r => setTimeout(r, 2000));
       console.log('[Orchestrator] Risk > 70. Running Scenario Agent...');
       // Map corridor to an event type roughly
       let eventType = "combined_stress";
@@ -42,6 +55,7 @@ export async function runAllAgents(): Promise<any> {
 
       // 4. If scenario run, calculate supplyGap and run sprAgent
       if (scenarioData) {
+        await new Promise(r => setTimeout(r, 2000));
         console.log('[Orchestrator] Scenario run. Running SPR Agent...');
         // Mock supply gap based on impact drop pct
         const dropPct = scenarioData.impacts?.refinery_run_rate_drop_pct || 20;
@@ -66,5 +80,7 @@ export async function runAllAgents(): Promise<any> {
       success: false,
       error
     };
+  } finally {
+    isRunning = false;
   }
 }

@@ -1,4 +1,5 @@
-import { Bell } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRealtimeAlerts } from '../hooks/useRealtimeAlerts';
 
 function timeAgo(dateString?: string) {
@@ -23,24 +24,36 @@ function getSeverityColor(severity: string) {
 
 export default function AlertFeed() {
   const { alerts, loading } = useRealtimeAlerts();
+  const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg p-4 w-80 z-50">
-      <div className="flex items-center gap-2 font-bold mb-3 border-b border-border pb-2">
-        <Bell className="w-4 h-4 text-warning" /> Live Intel Feed
+    <div className="fixed bottom-4 right-4 bg-card border border-border shadow-lg rounded-lg w-80 z-50 transition-all duration-300">
+      <div 
+        className="flex items-center justify-between font-bold p-3 cursor-pointer hover:bg-white/5 rounded-t-lg transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-2">
+          <Bell className="w-4 h-4 text-warning" /> Live Intel Feed
+        </div>
+        <div>
+          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+        </div>
       </div>
-      <div className="flex flex-col gap-3 text-xs max-h-64 overflow-y-auto custom-scrollbar pr-1">
-        {loading && <div className="text-gray-500 italic">Connecting to live feed...</div>}
-        {!loading && alerts.length === 0 && <div className="text-gray-500 italic">No recent alerts.</div>}
-        {alerts.map((alert) => (
-          <div key={alert.id} className="text-gray-300">
-            <span className={`${getSeverityColor(alert.severity)} font-bold mr-1`}>
-              [{timeAgo(alert.created_at)}]
-            </span>
-            {alert.title}
-          </div>
-        ))}
-      </div>
+      
+      {isExpanded && (
+        <div className="flex flex-col gap-3 text-xs max-h-64 overflow-y-auto custom-scrollbar p-4 pt-2 border-t border-border">
+          {loading && <div className="text-gray-500 italic">Connecting to live feed...</div>}
+          {!loading && alerts.length === 0 && <div className="text-gray-500 italic">No recent alerts.</div>}
+          {alerts.map((alert) => (
+            <div key={alert.id} className="text-gray-300">
+              <span className={`${getSeverityColor(alert.severity)} font-bold mr-1`}>
+                [{timeAgo(alert.created_at)}]
+              </span>
+              {alert.title}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
