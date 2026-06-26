@@ -6,17 +6,17 @@ export default function SupplyChainGraph() {
   const [data, setData] = useState<{ chokepoints: any[], refineries: any[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [timedOut, setTimedOut] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    // 5-second timeout for the graph
+    // 15-second timeout for the graph
     const t = setTimeout(() => {
       if (isMounted && loading) {
         setTimedOut(true);
       }
-    }, 5000);
+    }, 15000);
 
     async function loadGraphData() {
       try {
@@ -31,7 +31,7 @@ export default function SupplyChainGraph() {
         }
       } catch (err) {
         if (isMounted) {
-          setError(true);
+          setError(err instanceof Error ? err.message : String(err));
           setLoading(false);
         }
       }
@@ -62,7 +62,15 @@ export default function SupplyChainGraph() {
         <AlertCircle className="w-16 h-16 text-warning mb-4 opacity-50" />
         <h3 className="text-xl font-bold text-gray-200 mb-2">Knowledge Graph Unavailable</h3>
         <p className="text-gray-400 max-w-md">
-          Unable to connect to Neo4j AuraDB. Please verify your connection string and credentials in the <code className="bg-black/30 px-2 py-1 rounded text-primary">.env</code> file.
+          {typeof error === 'string' ? (
+            <>
+              <strong>Error:</strong> {error}
+            </>
+          ) : (
+            <>
+              Unable to connect to Neo4j AuraDB. Please verify your connection string and credentials in the <code className="bg-black/30 px-2 py-1 rounded text-primary">.env</code> file.
+            </>
+          )}
         </p>
       </div>
     );

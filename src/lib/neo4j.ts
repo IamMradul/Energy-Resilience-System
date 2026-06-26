@@ -1,35 +1,41 @@
-import neo4j from 'neo4j-driver'
-
-const uri = import.meta.env.VITE_NEO4J_URI || ''
-const user = import.meta.env.VITE_NEO4J_USER || ''
-const password = import.meta.env.VITE_NEO4J_PASSWORD || ''
-
-let driver: any = null
-
-if (uri && !uri.includes('placeholder')) {
-  try {
-    driver = neo4j.driver(
-      uri,
-      neo4j.auth.basic(user, password)
-    )
-  } catch (error) {
-    console.error('Failed to initialize Neo4j driver:', error)
-  }
-} else {
-  console.log('Neo4j skipped: placeholders or empty URI detected.')
-}
-
 export const runQuery = async (cypher: string, params = {}) => {
-  if (!driver) {
-    throw new Error('Neo4j driver not initialized')
-  }
-  const session = driver.session()
   try {
-    const result = await session.run(cypher, params)
-    return result.records
-  } finally {
-    await session.close()
+    console.log('Sending cypher query via API...', cypher.substring(0, 50));
+    
+    // We proxy through our Vite backend to bypass browser ALPN/WebSocket issues
+    const res = await fetch('/api/neo4j', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ cypher, params })
+    });
+    
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP error! status: ${res.status}`);
+    }
+    
+    const data = await res.json();
+    console.log('Query completed via API, records:', data.records.length);
+    
+    // Convert plain objects back to something resembling Neo4j Record objects 
+    // (with .get() and .toObject() methods) so the rest of the app doesn't break
+    return data.records.map((r: any) => {
+      return {
+        toObject: () => r,
+        get: (key: string) => {
+          if (r[key] && typeof r[key] === 'object' && 'low' in r[key] && 'high' in r[key]) {
+            return { toNumber: () => r[key].low };
+          }
+          return r[key];
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Query failed in API runQuery:', error);
+    throw error;
   }
 }
 
-export default driver
+export default null; // Driver is no longer exported/used in the browser

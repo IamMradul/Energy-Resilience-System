@@ -61,32 +61,36 @@ export async function runAllAgents(): Promise<any> {
       geminiCalls++;
     }
 
-    // 3. If riskData.risk_score > 70, run scenarioAgent
-    if (riskData.risk_score > 70) {
+    // 3. Run scenarioAgent for all scenarios to populate the UI dropdown
+    console.log('[Orchestrator] Running Scenario Agent for all scenarios...');
+    const eventTypes = [
+      'hormuz_closure_40pct',
+      'opec_emergency_cut',
+      'red_sea_suspension',
+      'combined_stress'
+    ];
+    
+    let lastScenarioData = null;
+    
+    for (const evt of eventTypes) {
       await new Promise(r => setTimeout(r, 2000));
-      console.log('[Orchestrator] Risk > 70. Running Scenario Agent...');
-      // Map corridor to an event type roughly
-      let eventType = "combined_stress";
-      if (riskData.corridor.toLowerCase().includes('hormuz')) {
-        eventType = "hormuz_closure_40pct";
-      } else if (riskData.corridor.toLowerCase().includes('red sea') || riskData.corridor.toLowerCase().includes('suez')) {
-        eventType = "red_sea_suspension";
-      }
-
-      const scenarioData = await runWithRetry(() => runScenarioAgent(eventType));
-      geminiCalls++;
-
-      // 4. If scenario run, calculate supplyGap and run sprAgent
+      const scenarioData = await runWithRetry(() => runScenarioAgent(evt));
       if (scenarioData) {
-        await new Promise(r => setTimeout(r, 2000));
-        console.log('[Orchestrator] Scenario run. Running SPR Agent...');
-        // Mock supply gap based on impact drop pct
-        const dropPct = scenarioData.impacts?.refinery_run_rate_drop_pct || 20;
-        const supplyGapMbpd = (4.5 * (dropPct / 100)).toFixed(2);
-        
-        await runWithRetry(() => runSPRAgent(parseFloat(supplyGapMbpd)));
-        geminiCalls++;
+        lastScenarioData = scenarioData;
       }
+      geminiCalls++;
+    }
+
+    // 4. If any scenario run, calculate supplyGap and run sprAgent
+    if (lastScenarioData) {
+      await new Promise(r => setTimeout(r, 2000));
+      console.log('[Orchestrator] Scenario run. Running SPR Agent...');
+      // Mock supply gap based on impact drop pct of the last run scenario
+      const dropPct = lastScenarioData.impacts?.refinery_run_rate_drop_pct || 20;
+      const supplyGapMbpd = (4.5 * (dropPct / 100)).toFixed(2);
+      
+      await runWithRetry(() => runSPRAgent(parseFloat(supplyGapMbpd)));
+      geminiCalls++;
     }
 
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);

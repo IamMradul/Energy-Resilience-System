@@ -96,6 +96,7 @@ export async function getChokepointRiskRanking() {
     
     return records.map((r: any) => r.toObject())
   } catch (e) {
-    return []
+    console.error('Error fetching chokepoint risk ranking:', e);
+    throw e;
   }
 }
