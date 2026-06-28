@@ -119,7 +119,7 @@ function App() {
         )}
 
         {activeTab === 'Supply Chain Graph' && (
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 h-full flex flex-col">
             <SupplyChainGraph />
           </div>
         )}

@@ -84,7 +84,8 @@ Return ONLY a valid JSON ARRAY containing exactly 4 objects. No markdown, no exp
           const alternativeRoutes = await findAlternativeRoutes(riskData.corridor);
           
           if (refineriesAtRisk.length > 0) {
-            alertTitle = `${refineriesAtRisk.length} refineries at risk via ${riskData.corridor}: ${refineriesAtRisk.map((r: any) => r.refinery).join(', ')}`;
+            const uniqueRefineries = [...new Set(refineriesAtRisk.map((r: any) => r.refinery))];
+            alertTitle = `${uniqueRefineries.length} refineries at risk via ${riskData.corridor}: ${uniqueRefineries.join(', ')}`;
           }
           
           riskData.refineriesAtRisk = refineriesAtRisk;

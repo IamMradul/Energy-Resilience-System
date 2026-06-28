@@ -55,6 +55,11 @@ export default defineConfig({
           req.on('end', async () => {
             try {
               const { cypher, params } = JSON.parse(body);
+              if (!driver) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Database driver not initialized' }));
+                return;
+              }
               const session = driver.session();
               try {
                 const result = await session.run(cypher, params || {});
@@ -67,7 +72,7 @@ export default defineConfig({
               }
             } catch (err) {
               res.statusCode = 500;
-              res.end(JSON.stringify({ error: err.message }));
+              res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
             }
           });
         });

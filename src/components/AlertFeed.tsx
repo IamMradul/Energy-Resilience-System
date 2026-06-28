@@ -44,14 +44,24 @@ export default function AlertFeed() {
         <div className="flex flex-col gap-3 text-xs max-h-64 overflow-y-auto custom-scrollbar p-4 pt-2 border-t border-border">
           {loading && <div className="text-gray-500 italic">Connecting to live feed...</div>}
           {!loading && alerts.length === 0 && <div className="text-gray-500 italic">No recent alerts.</div>}
-          {alerts.map((alert) => (
-            <div key={alert.id} className="text-gray-300">
-              <span className={`${getSeverityColor(alert.severity)} font-bold mr-1`}>
-                [{timeAgo(alert.created_at)}]
-              </span>
-              {alert.title}
-            </div>
-          ))}
+          {alerts.map((alert) => {
+            let title = alert.title;
+            if (title.includes('refineries at risk')) {
+              const parts = title.split(': ');
+              if (parts.length > 1) {
+                const unique = [...new Set(parts[1].split(', '))];
+                title = `${unique.length} refineries at risk via ${parts[0].split('via ')[1]}: ${unique.join(', ')}`;
+              }
+            }
+            return (
+              <div key={alert.id} className="text-gray-300">
+                <span className={`${getSeverityColor(alert.severity)} font-bold mr-1`}>
+                  [{timeAgo(alert.created_at)}]
+                </span>
+                {title}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

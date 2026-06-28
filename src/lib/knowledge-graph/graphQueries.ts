@@ -100,3 +100,19 @@ export async function getChokepointRiskRanking() {
     throw e;
   }
 }
+
+// Get full global topology mapping
+export async function getGlobalTopology() {
+  try {
+    const records = await runQuery(`
+      MATCH (s:Supplier)-[:SUPPLIES_THROUGH]->(c:Chokepoint)
+      OPTIONAL MATCH (c)-[rt:ROUTES_TO]->(p:Port)-[:FEEDS]->(r:Refinery)
+      RETURN s.name as supplier, c.name as chokepoint, c.risk_score as riskScore, 
+             r.name as refinery, p.name as feedPort, rt.primary as isPrimary
+    `)
+    return records.map((r: any) => r.toObject())
+  } catch (e) {
+    console.error('Error fetching global topology:', e);
+    throw e;
+  }
+}
