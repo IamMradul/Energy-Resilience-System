@@ -9,6 +9,10 @@ import SPRTimeline from './components/SPRTimeline';
 import AlertFeed from './components/AlertFeed';
 import SupplyChainGraph from './components/SupplyChainGraph';
 import SystemStatus from './components/SystemStatus';
+import MiniScenarioPanel from './components/MiniScenarioPanel';
+import ThreatLevelBar from './components/ThreatLevelBar';
+import SupplyFlowMetrics from './components/SupplyFlowMetrics';
+import ResponseMetrics from './components/ResponseMetrics';
 import { runAllAgents } from './lib/agents';
 import { runQuery } from './lib/neo4j';
 import { seedKnowledgeGraph } from './lib/knowledge-graph/seedGraph';
@@ -61,16 +65,16 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-gray-100 flex flex-col font-sans pb-10">
+    <div className="min-h-screen bg-[#0a0f1e] text-gray-100 flex flex-col font-sans pb-10">
       <Header isAgentsRunning={isAgentsRunning} />
 
       {/* Tabs */}
-      <div className="px-6 py-2 border-b border-border bg-card/50 flex gap-6">
+      <div className="px-6 py-2 border-b border-white/10 bg-[#0d1526]/50 flex gap-6 shadow-sm">
         {['Dashboard', 'Supply Chain Graph', 'Vessel Tracking', 'Scenarios'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab as any)}
-            className={`pb-2 text-sm font-semibold transition-colors ${activeTab === tab ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`pb-2 text-sm font-semibold transition-colors ${activeTab === tab ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' : 'text-slate-500 hover:text-slate-300'}`}
           >
             {tab}
           </button>
@@ -82,37 +86,44 @@ function App() {
         {activeTab === 'Dashboard' && (
           <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
             {/* Left Column: Map & Gauges */}
-            <div className="col-span-12 lg:col-span-7 flex flex-col gap-4 h-full">
-              <div className="bg-card rounded-lg border border-border h-[500px] shrink-0 relative overflow-hidden flex flex-col">
-                <div className="p-3 border-b border-border font-semibold flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-primary" />
+            <div className="col-span-12 lg:col-span-7 flex flex-col gap-3 h-full">
+              <div className="bg-[#0d1526] rounded-lg border border-white/10 h-[500px] shrink-0 relative overflow-hidden flex flex-col">
+                <div className="p-3 border-b border-white/10 text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#3b82f6]" />
                   Live Risk Heatmap & Corridors
                 </div>
                 <div className="flex-1 relative">
                   <RiskMap />
                 </div>
               </div>
-              <div className="h-48 bg-card rounded-lg border border-border p-4">
-                <RiskGauges />
+              <div className="flex-none grid grid-cols-2 gap-3">
+                <SPRTimeline />
+                <ThreatLevelBar />
+              </div>
+              <div className="flex-1 grid grid-cols-2 gap-3 min-h-0">
+                <MiniScenarioPanel />
+                <SupplyFlowMetrics />
               </div>
             </div>
 
-            {/* Right Column: SPR, Procurement */}
-            <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar">
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="font-semibold flex items-center gap-2 mb-4">
-                  <ShieldAlert className="w-5 h-5 text-danger" />
-                  SPR Drawdown Optimization
-                </div>
-                <SPRTimeline />
+            {/* Right Column: Gauges, Procurement, Metrics */}
+            <div className="col-span-12 lg:col-span-5 flex flex-col gap-3 h-full overflow-hidden">
+              <div className="flex-none">
+                <RiskGauges />
               </div>
 
-              <div className="bg-card rounded-lg border border-border p-4 flex-1">
-                <div className="font-semibold flex items-center gap-2 mb-4">
-                  <GitCommit className="w-5 h-5 text-success" />
-                  Adaptive Procurement Recommendations
+              <div className="flex-1 min-h-0 bg-[#0d1526] border border-white/10 rounded-lg p-4 flex flex-col">
+                <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3 flex items-center gap-2">
+                  <GitCommit className="w-4 h-4 text-slate-400" />
+                  Adaptive Procurement
                 </div>
-                <ProcurementCards />
+                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                  <ProcurementCards />
+                </div>
+              </div>
+
+              <div className="flex-none h-[180px]">
+                <ResponseMetrics />
               </div>
             </div>
           </div>

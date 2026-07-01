@@ -1,6 +1,6 @@
 import { callGemini } from '../gemini';
 import { getCached, setCached } from '../cache';
-import { saveProcurementRecs } from '../supabase';
+import { saveProcurementRecs, supabase } from '../supabase';
 import type { ProcurementRec } from '../../types/agents';
 
 export async function runProcurementAgent(corridor: string, riskScore: number): Promise<ProcurementRec[]> {
@@ -10,6 +10,12 @@ export async function runProcurementAgent(corridor: string, riskScore: number): 
     console.log('[Procurement Agent] Returning cached data');
     return cached;
   }
+
+  // Cleanup old records to prevent buildup
+  await supabase
+    .from('procurement_recs')
+    .delete()
+    .lt('created_at', new Date(Date.now() - 10 * 60 * 1000).toISOString());
 
   let wtiPrice = "$83.50";
   const alphaVantageKey = import.meta.env.VITE_ALPHA_VANTAGE_KEY || '';
