@@ -57,13 +57,13 @@ function RiskGaugeCard({ title, corridor, score }: { title: string, corridor: st
   let level = 'NORMAL';
   let severityColor = '#10b981'; // green
 
-  if (score > 70) {
+  if (score >= 75) {
     level = 'CRITICAL';
     severityColor = '#ef4444'; // red
-  } else if (score > 50) {
+  } else if (score >= 55) {
     level = 'HIGH';
     severityColor = '#f59e0b'; // amber
-  } else if (score > 30) {
+  } else if (score >= 40) {
     level = 'ELEVATED';
     severityColor = '#eab308'; // yellow
   }
@@ -79,30 +79,30 @@ function RiskGaugeCard({ title, corridor, score }: { title: string, corridor: st
       </div>
       
       <div className="relative flex justify-center items-center">
-        <svg width="80" height="44" viewBox="0 0 80 44">
+        <svg width="100" height="58" viewBox="0 0 100 58">
           {/* Background track */}
           <path 
-            d="M8 40 A32 32 0 0 1 72 40" 
+            d="M10 52 A40 40 0 0 1 90 52" 
             fill="none" 
             stroke="rgba(255,255,255,0.08)" 
-            strokeWidth="5" 
+            strokeWidth="6" 
             strokeLinecap="round"
           />
-          {/* Colored fill - dasharray=100.5 is full arc length */}
+          {/* Colored fill - dasharray=125.66 is full arc length */}
           <path 
-            d="M8 40 A32 32 0 0 1 72 40" 
+            d="M10 52 A40 40 0 0 1 90 52" 
             fill="none" 
             stroke={severityColor} 
-            strokeWidth="5" 
+            strokeWidth="6" 
             strokeLinecap="round"
-            strokeDasharray={100.5}
-            strokeDashoffset={100.5 - (score / 100 * 100.5)}
+            strokeDasharray={125.66}
+            strokeDashoffset={125.66 - (score / 100 * 125.66)}
             style={{ transition: 'stroke-dashoffset 0.8s ease-out' }}
           />
+          <text x="50" y="46" textAnchor="middle" fill={severityColor} className="font-bold text-xl">
+            {score}
+          </text>
         </svg>
-        <div className="absolute bottom-1 font-bold text-xl" style={{ color: severityColor }}>
-          {score}
-        </div>
       </div>
 
       <div className="mt-2 flex flex-col items-center w-full gap-1">

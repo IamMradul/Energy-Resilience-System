@@ -102,72 +102,77 @@ export default function ScenarioModeler() {
               </div>
             )}
 
-            {allScenarios.length > 0 && (
-              <div className="mt-6 border-t border-border pt-4">
-                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-3">
-                  All Scenario Comparison
-                </h3>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left text-slate-500 text-xs pb-2">Scenario</th>
-                      <th className="text-right text-slate-500 text-xs pb-2">Refinery</th>
-                      <th className="text-right text-slate-500 text-xs pb-2">Fuel Price</th>
-                      <th className="text-right text-slate-500 text-xs pb-2">GDP</th>
-                      <th className="text-right text-slate-500 text-xs pb-2">Days</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allScenarios.map(s => {
-                      const isSelected = s.event_type === selected;
-                      const label = SCENARIOS.find(x => x.id === s.event_type)?.label || s.event_type;
-                      return (
-                        <tr key={s.id} className={`border-b border-border ${isSelected ? 'bg-slate-800/50' : ''}`}>
-                          <td className="py-2 text-slate-300 text-xs pr-2">{label}</td>
-                          <td className="py-2 text-right text-danger font-medium text-xs">-{s.impacts?.refinery_run_rate_drop_pct ?? 0}%</td>
-                          <td className="py-2 text-right text-warning font-medium text-xs">+{s.impacts?.domestic_fuel_price_increase_pct ?? 0}%</td>
-                          <td className="py-2 text-right text-danger font-medium text-xs">{s.impacts?.gdp_trajectory_30d_pct ?? 0}%</td>
-                          <td className="py-2 text-right text-slate-300 font-medium text-xs">{s.impacts?.days_to_supply_crunch ?? 0}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            {allScenarios.length > 0 && (() => {
+              const chartData = allScenarios.map(s => ({
+                id: s.id,
+                event_type: s.event_type,
+                full_label: SCENARIOS.find(x => x.id === s.event_type)?.label || s.event_type,
+                label: SCENARIOS.find(x => x.id === s.event_type)?.label.split(' ')[0] || s.event_type,
+                refinery: s.impacts?.refinery_run_rate_drop_pct ?? 0,
+                fuel: s.impacts?.domestic_fuel_price_increase_pct ?? 0,
+                gdp: s.impacts?.gdp_trajectory_30d_pct ?? 0,
+                days: s.impacts?.days_to_supply_crunch ?? 0
+              }));
 
-                <div className="mt-6 h-56 w-full">
-                  <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-2">
-                    Macro Impact Comparison
+              return (
+                <div className="mt-6 border-t border-border pt-4">
+                  <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-3">
+                    All Scenario Comparison
                   </h3>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={allScenarios.map(s => ({
-                        label: SCENARIOS.find(x => x.id === s.event_type)?.label.split(' ')[0] || s.event_type,
-                        refinery_drop: s.impacts?.refinery_run_rate_drop_pct ?? 0,
-                        fuel_increase: s.impacts?.domestic_fuel_price_increase_pct ?? 0,
-                        days_to_crunch: s.impacts?.days_to_supply_crunch ?? 0
-                      }))}
-                    >
-                      <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip 
-                        cursor={{ fill: 'transparent' }}
-                        contentStyle={{
-                          background: '#0d1526',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          borderRadius: '6px',
-                          color: '#f1f5f9',
-                          fontSize: '11px'
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: '10px', color: '#64748b' }} />
-                      <Bar dataKey="refinery_drop" name="Refinery ↓%" fill="#ef4444" radius={[3,3,0,0]} />
-                      <Bar dataKey="fuel_increase" name="Fuel ↑%" fill="#f59e0b" radius={[3,3,0,0]} />
-                      <Bar dataKey="days_to_crunch" name="Days to Crunch" fill="#3b82f6" radius={[3,3,0,0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left text-slate-500 text-xs pb-2">Scenario</th>
+                        <th className="text-right text-slate-500 text-xs pb-2">Refinery</th>
+                        <th className="text-right text-slate-500 text-xs pb-2">Fuel Price</th>
+                        <th className="text-right text-slate-500 text-xs pb-2">GDP</th>
+                        <th className="text-right text-slate-500 text-xs pb-2">Days</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {chartData.map(s => {
+                        const isSelected = s.event_type === selected;
+                        return (
+                          <tr key={s.id} className={`border-b border-border ${isSelected ? 'bg-slate-800/50' : ''}`}>
+                            <td className="py-2 text-slate-300 text-xs pr-2">{s.full_label}</td>
+                            <td className="py-2 text-right text-danger font-medium text-xs">-{s.refinery}%</td>
+                            <td className="py-2 text-right text-warning font-medium text-xs">+{s.fuel}%</td>
+                            <td className="py-2 text-right text-danger font-medium text-xs">{s.gdp}%</td>
+                            <td className="py-2 text-right text-slate-300 font-medium text-xs">{s.days}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                  <div className="mt-6 h-56 w-full">
+                    <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-2">
+                      Macro Impact Comparison
+                    </h3>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData}>
+                        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <Tooltip 
+                          cursor={{ fill: 'transparent' }}
+                          contentStyle={{
+                            background: '#0d1526',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '6px',
+                            color: '#f1f5f9',
+                            fontSize: '11px'
+                          }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '10px', color: '#64748b' }} />
+                        <Bar dataKey="refinery" name="Refinery %" fill="#ef4444" radius={[3,3,0,0]} />
+                        <Bar dataKey="fuel" name="Fuel %" fill="#f59e0b" radius={[3,3,0,0]} />
+                        <Bar dataKey="days" name="Days to Crunch" fill="#3b82f6" radius={[3,3,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </>
         ) : (
           <div className="text-gray-500 italic">No simulation data available for this scenario yet. Wait for the agent to run.</div>

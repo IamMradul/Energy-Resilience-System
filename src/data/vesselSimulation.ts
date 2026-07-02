@@ -46,6 +46,14 @@ export const SIMULATED_VESSELS: Vessel[] = [
     destination: 'KOCHI IN', cargo: 'CRUDE OIL',
     status: 'UNDERWAY'
   },
+  {
+    mmsi: '477345678', name: 'SUEZ TRANSIT',
+    type: 'Suezmax', flag: 'SA',
+    lat: 29.5, lng: 32.8,
+    speed: 13.5, heading: 145,
+    destination: 'KOCHI IN', cargo: 'ARAB LIGHT',
+    status: 'UNDERWAY'
+  },
   // Cape of Good Hope route
   {
     mmsi: '636017890', name: 'CAPE NAVIGATOR',

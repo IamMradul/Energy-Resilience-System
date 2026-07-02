@@ -50,17 +50,17 @@ export default function ResponseMetrics() {
         </div>
       </div>
 
-      <div className="flex flex-col text-[0.8rem] text-slate-300 gap-1 border-t border-border pt-3 mb-4">
-        <div className="flex justify-between">
-          <span>Agents fired today:</span>
+      <div className="flex flex-col text-[0.8rem] gap-2 border-t border-border pt-3 mb-4">
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Agents fired today</span>
           <span className="font-bold text-white">{counts.agents}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Alerts generated:</span>
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Alerts generated</span>
           <span className="font-bold text-white">{counts.alerts}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Recs delivered:</span>
+        <div className="flex items-center justify-between">
+          <span className="text-slate-400">Recs delivered</span>
           <span className="font-bold text-white">{counts.recs}</span>
         </div>
       </div>

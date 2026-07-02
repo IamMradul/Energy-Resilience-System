@@ -18,7 +18,7 @@ const INDIAN_PORTS = [
 const createPortIcon = () => {
   return L.divIcon({
     className: 'custom-port-icon',
-    html: `<div style="width:10px;height:10px;background:#3b82f6;transform:rotate(45deg);border:1px solid #60a5fa;box-shadow:0 0 5px rgba(59,130,246,0.6);"></div>`,
+    html: `<div style="width:10px;height:10px;background:#a855f7;transform:rotate(45deg);border:1px solid #c084fc;box-shadow:0 0 5px rgba(168,85,247,0.6);"></div>`,
     iconSize: [12, 12],
     iconAnchor: [6, 6]
   });
@@ -26,20 +26,15 @@ const createPortIcon = () => {
 
 // Custom icons based on vessel status/type
 const createVesselIcon = (vessel: any) => {
-  let color = 'bg-blue-500'; // default VLCC safe
+  let color = 'bg-blue-500';
   if (vessel.status === 'DIVERTED') color = 'bg-red-500 animate-pulse';
   else if (vessel.status === 'AT ANCHOR') color = 'bg-gray-500 animate-pulse';
-  else if (vessel.type === 'VLCC' && vessel.lng < 60) color = 'bg-red-500'; // high risk zone
-  else if (vessel.type === 'Suezmax') color = 'bg-orange-500';
-  else if (vessel.type === 'Aframax') color = 'bg-yellow-400';
-
-  const size = vessel.type === 'VLCC' ? 16 : vessel.type === 'Suezmax' ? 12 : 10;
 
   return L.divIcon({
     className: 'custom-vessel-icon',
-    html: `<div class="${color} rounded-full border-2 border-border shadow-lg" style="width: ${size}px; height: ${size}px;"></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size/2, size/2]
+    html: `<div class="${color} rounded-full border border-border shadow-[0_0_8px_rgba(59,130,246,0.8)]" style="width: 10px; height: 10px;"></div>`,
+    iconSize: [10, 10],
+    iconAnchor: [5, 5]
   });
 };
 
@@ -61,7 +56,7 @@ export default function RiskMap() {
 
   return (
     <div className="absolute inset-0">
-      <MapContainer center={[15.0, 60.0]} zoom={3} style={{ height: '100%', width: '100%', background: '#0B0F19' }} zoomControl={false}>
+      <MapContainer center={[15.0, 55.0]} zoom={3} style={{ height: '100%', width: '100%', background: '#0B0F19' }} zoomControl={false}>
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -179,7 +174,7 @@ export default function RiskMap() {
                 <span>Vessel (VLCC/Suezmax/Aframax)</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 bg-blue-500 border border-blue-400 rotate-45 ml-0.5 flex-shrink-0"></div>
+                <div className="w-2.5 h-2.5 bg-[#a855f7] border border-[#c084fc] rotate-45 ml-0.5 flex-shrink-0"></div>
                 <span className="ml-0.5">Indian Refinery Port</span>
               </div>
             </div>

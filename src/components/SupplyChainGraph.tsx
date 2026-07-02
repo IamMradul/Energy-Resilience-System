@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getGlobalTopology } from '../lib/knowledge-graph/graphQueries';
+import { supabase } from '../lib/supabase';
 import { AlertCircle, Activity } from 'lucide-react';
 
 export default function SupplyChainGraph() {
@@ -29,6 +30,17 @@ export default function SupplyChainGraph() {
       try {
         const topology = await getGlobalTopology();
         
+        const { data: liveRisks } = await supabase
+          .from('risk_scores')
+          .select('corridor, risk_score')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        const liveMap = (liveRisks ?? []).reduce((acc, r) => {
+          if (!acc[r.corridor]) acc[r.corridor] = r.risk_score;
+          return acc;
+        }, {} as Record<string, number>);
+        
         const uniqueSuppliers = new Set<string>();
         const chokepointsMap = new Map<string, any>();
         const refineriesMap = new Map<string, any>();
@@ -44,7 +56,8 @@ export default function SupplyChainGraph() {
 
           if (s) uniqueSuppliers.add(s);
           if (c) {
-            chokepointsMap.set(c, { chokepoint: c, riskScore: { low: risk } });
+            const finalRisk = liveMap[c] ?? risk;
+            chokepointsMap.set(c, { chokepoint: c, riskScore: { low: finalRisk } });
             if (s) sToC.add(`${s}|${c}`);
           }
           if (rName) {
@@ -175,11 +188,10 @@ export default function SupplyChainGraph() {
             key={`c-r-${j}-${k}`}
             d={`M 60 ${y1} C 70 ${y1}, 70 ${y2}, 80 ${y2}`}
             fill="none"
-            stroke={route.isPrimary ? "rgba(59, 130, 246, 1)" : "rgba(156, 163, 175, 0.8)"}
-            strokeWidth={route.isPrimary ? "2" : "1.5"}
-            strokeDasharray={route.isPrimary ? "none" : "8, 4"}
-            opacity={route.isPrimary ? 0.4 : 0.6}
-            className={route.isPrimary ? "animate-pulse" : ""}
+            stroke="#3b82f6"
+            strokeWidth="1.5"
+            opacity={0.6}
+            className="animate-pulse"
             style={{ animationDuration: `${4 + (j+k)}s` }}
           />
         );

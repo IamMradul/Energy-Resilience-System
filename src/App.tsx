@@ -158,13 +158,33 @@ function App() {
         )}
 
         {activeTab === 'Scenarios' && (
-          <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto flex flex-col gap-4 overflow-y-auto p-4">
-            <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg p-6 mb-4">
-              <div className="font-semibold flex items-center gap-2 mb-4 text-slate-200">
+          <div className="flex-1 min-h-0 w-full h-full p-4 grid grid-cols-[1fr_340px] gap-4 overflow-hidden">
+            <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg p-6 overflow-y-auto custom-scrollbar h-full flex flex-col">
+              <div className="font-semibold flex items-center gap-2 mb-4 text-slate-200 shrink-0">
                 <FileWarning className="w-5 h-5 text-warning" />
                 Disruption Scenario Modeler
               </div>
-              <ScenarioModeler />
+              <div className="flex-1">
+                <ScenarioModeler />
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar h-full pr-2">
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                <RiskGauges />
+              </div>
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                <SPRTimeline />
+              </div>
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden flex flex-col min-h-[300px]">
+                <div className="p-3 border-b border-border text-[0.7rem] font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2 bg-black/20 shrink-0">
+                  <GitCommit className="w-4 h-4 text-slate-400" />
+                  Top Procurement Recs
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 pt-2">
+                  <ProcurementCards />
+                </div>
+              </div>
             </div>
           </div>
         )}
