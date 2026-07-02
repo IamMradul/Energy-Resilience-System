@@ -21,7 +21,7 @@ export default function SPRTimeline() {
   const exhaustionDay = Math.round(9.5 + supplyGapDays);
 
   return (
-    <div className="bg-[#0d1526] border border-white/10 rounded-lg p-4 text-xs">
+    <div className="bg-[#0d1526] border border-border rounded-lg p-4 text-xs">
       <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-4 flex items-center gap-2">
         <ShieldAlert className="w-4 h-4 text-slate-400" /> SPR Drawdown Optimization
       </div>
@@ -31,7 +31,7 @@ export default function SPRTimeline() {
           <span>Current Cover</span>
           <span className="text-warning font-bold">9.5 days (CRITICAL)</span>
         </div>
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-slate-800/50 rounded-full overflow-hidden">
           <div 
             className="h-full bg-warning transition-all duration-[600ms] ease-out"
             style={{ width: mounted ? '25%' : '0%' }}
@@ -39,12 +39,12 @@ export default function SPRTimeline() {
         </div>
       </div>
 
-      <div className="border-y border-white/5 py-3 mb-3">
+      <div className="border-y border-border py-3 mb-3">
         <div className="text-slate-500 mb-2">Optimal Drawdown Schedule</div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-slate-300">
             <span className="w-16">Day 1-5</span>
-            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-slate-800/50 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-[#3b82f6] transition-all duration-[600ms] ease-out"
                 style={{ width: mounted ? '40%' : '0%' }}
@@ -54,7 +54,7 @@ export default function SPRTimeline() {
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <span className="w-16">Day 6-10</span>
-            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-slate-800/50 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-[#3b82f6] transition-all duration-[600ms] ease-out"
                 style={{ width: mounted ? '90%' : '0%' }}
@@ -74,7 +74,7 @@ export default function SPRTimeline() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 text-[0.7rem] pt-2 border-t border-white/5">
+      <div className="flex flex-col gap-1 text-[0.7rem] pt-2 border-t border-border">
         <div className="text-warning flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3" /> Exhaustion risk at Day {exhaustionDay}
         </div>
@@ -92,7 +92,7 @@ function LocationRow({ name, mmt, maxMmt, mounted }: { name: string, mmt: number
     <div className="flex items-center gap-2 text-slate-300 text-[10px]">
       <span className="w-16">{name}</span>
       <span className="w-12 text-slate-400">{mmt.toFixed(2)} MMT</span>
-      <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+      <div className="flex-1 h-1 bg-slate-800/50 rounded-full overflow-hidden">
         <div 
           className="h-full bg-success transition-all duration-[600ms] ease-out"
           style={{ width: mounted ? `${pct}%` : '0%' }}

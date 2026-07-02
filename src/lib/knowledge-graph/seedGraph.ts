@@ -61,7 +61,15 @@ export const seedKnowledgeGraph = async (): Promise<void> => {
     `)
     await runQuery(`
       MATCH (s:Supplier {name: 'Nigeria'}), (c:Chokepoint {name: 'Cape of Good Hope'})
-      CREATE (s)-[:SUPPLIES_THROUGH {volume_pct: 100, transit_days: 24}]->(c)
+      CREATE (s)-[:SUPPLIES_THROUGH {volume_pct: 70, transit_days: 24}]->(c)
+    `)
+    await runQuery(`
+      MATCH (s:Supplier {name: 'Russia'}), (c:Chokepoint {name: 'Strait of Malacca'})
+      CREATE (s)-[:SUPPLIES_THROUGH {volume_pct: 40, transit_days: 14}]->(c)
+    `)
+    await runQuery(`
+      MATCH (s:Supplier {name: 'Nigeria'}), (c:Chokepoint {name: 'Red Sea/Bab-el-Mandeb'})
+      CREATE (s)-[:SUPPLIES_THROUGH {volume_pct: 30, transit_days: 15}]->(c)
     `)
     await runQuery(`
       MATCH (s:Supplier {name: 'Kuwait'}), (c:Chokepoint {name: 'Strait of Hormuz'})
@@ -97,6 +105,14 @@ export const seedKnowledgeGraph = async (): Promise<void> => {
     await runQuery(`
       MATCH (c:Chokepoint {name: 'Cape of Good Hope'}), (p:Port {name: 'New Mangalore Port'})
       CREATE (c)-[:ROUTES_TO {primary: false, distance_nm: 6800}]->(p)
+    `)
+    await runQuery(`
+      MATCH (c:Chokepoint {name: 'Strait of Malacca'}), (p:Port {name: 'Paradip Port'})
+      CREATE (c)-[:ROUTES_TO {primary: true, distance_nm: 2500}]->(p)
+    `)
+    await runQuery(`
+      MATCH (c:Chokepoint {name: 'Red Sea/Bab-el-Mandeb'}), (p:Port {name: 'Kandla/Sikka'})
+      CREATE (c)-[:ROUTES_TO {primary: true, distance_nm: 1800}]->(p)
     `)
 
     await runQuery(`

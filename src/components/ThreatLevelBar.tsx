@@ -50,7 +50,7 @@ export default function ThreatLevelBar() {
   const recommendation = highestRiskRecord?.recommendation || 'Maintain normal operations.';
 
   return (
-    <div className={`bg-[#0d1526] border border-white/10 rounded-lg p-4 flex flex-col ${isCritical ? 'animate-pulse-border' : ''}`}>
+    <div className={`bg-[#0d1526] border border-border rounded-lg p-4 flex flex-col ${isCritical ? 'animate-pulse-border' : ''}`}>
       <style>{`
         @keyframes pulseBorder {
           0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
@@ -74,7 +74,7 @@ export default function ThreatLevelBar() {
           </div>
           <span className="font-bold text-white text-lg">{overallScore}/100</span>
         </div>
-        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden">
           <div 
             className={`h-full ${levelColor.split(' ')[1]} transition-all duration-1000 ease-out`}
             style={{ width: `${overallScore}%` }}
@@ -101,7 +101,7 @@ export default function ThreatLevelBar() {
 
         <div>
           <div className="text-slate-500 mb-1">Recommended action:</div>
-          <div className="italic text-white border-l-2 border-white/20 pl-2">
+          <div className="italic text-white border-l-2 border-border pl-2">
             "{recommendation}"
           </div>
         </div>

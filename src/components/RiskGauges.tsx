@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRealtimeRiskScores } from '../hooks/useRealtimeRiskScores';
+import { supabase } from '../lib/supabase';
+import { LineChart, Line } from 'recharts';
 
 export default function RiskGauges() {
   const { riskScores, loading } = useRealtimeRiskScores();
@@ -7,7 +9,7 @@ export default function RiskGauges() {
   const defaultCorridors = ['Strait of Hormuz', 'Red Sea/Bab-el-Mandeb', 'Strait of Malacca', 'Cape of Good Hope'];
 
   return (
-    <div className="bg-[#0d1526] border border-white/10 rounded-lg p-4 flex flex-col gap-3">
+    <div className="bg-[#0d1526] border border-border rounded-lg p-4 flex flex-col gap-3 h-full">
       <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-1 flex items-center gap-2">
         <span className="text-slate-400">⚡</span> Corridor Risk Index
       </div>
@@ -15,11 +17,11 @@ export default function RiskGauges() {
       {loading ? (
         <div className="flex items-center justify-center text-slate-500 italic py-4 animate-pulse">Loading live risk data...</div>
       ) : (
-        <div className="flex flex-col gap-2">
-          {defaultCorridors.map(title => {
-            const scoreObj = riskScores.find(s => s.corridor === title);
-            const score = scoreObj ? scoreObj.risk_score : 0;
-            return <RiskRow key={title} title={title.split('/')[0]} score={score} />;
+        <div className="grid grid-cols-2 gap-2 h-full">
+          {defaultCorridors.map(corridorName => {
+            const scoreObj = riskScores.find(s => s.corridor === corridorName);
+            const score = scoreObj ? scoreObj.risk_score : (corridorName === 'Strait of Hormuz' ? 50 : corridorName === 'Red Sea/Bab-el-Mandeb' ? 40 : 0);
+            return <RiskGaugeCard key={corridorName} title={corridorName.split('/')[0]} corridor={corridorName} score={score} />;
           })}
         </div>
       )}
@@ -27,9 +29,10 @@ export default function RiskGauges() {
   );
 }
 
-function RiskRow({ title, score }: { title: string, score: number }) {
+function RiskGaugeCard({ title, corridor, score }: { title: string, corridor: string, score: number }) {
   const prevScoreRef = useRef(score);
   const [delta, setDelta] = useState(0);
+  const [sparkData, setSparkData] = useState<any[]>([]);
 
   useEffect(() => {
     if (score !== prevScoreRef.current) {
@@ -38,46 +41,101 @@ function RiskRow({ title, score }: { title: string, score: number }) {
     }
   }, [score]);
 
+  useEffect(() => {
+    async function fetchSparkline() {
+      const { data } = await supabase
+        .from('risk_scores')
+        .select('risk_score, created_at')
+        .eq('corridor', corridor)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      setSparkData((data ?? []).reverse());
+    }
+    fetchSparkline();
+  }, [corridor, score]);
+
   let level = 'NORMAL';
-  let color = 'text-emerald-500'; 
-  let bgColor = 'bg-emerald-500/10';
+  let severityColor = '#10b981'; // green
 
   if (score > 70) {
     level = 'CRITICAL';
-    color = 'text-rose-500';
-    bgColor = 'bg-rose-500/10';
+    severityColor = '#ef4444'; // red
   } else if (score > 50) {
     level = 'HIGH';
-    color = 'text-orange-500'; 
-    bgColor = 'bg-orange-500/10';
+    severityColor = '#f59e0b'; // amber
   } else if (score > 30) {
     level = 'ELEVATED';
-    color = 'text-amber-500'; 
-    bgColor = 'bg-amber-500/10';
+    severityColor = '#eab308'; // yellow
   }
 
+  // 40% opacity = 66, 4% opacity = 0A, 20% opacity = 33 (for pills)
   return (
-    <div className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-      <div className="flex flex-col gap-1 w-1/3">
-        <span className="text-[0.8rem] font-medium text-slate-200">{title}</span>
-        <div className="text-[0.65rem] font-medium text-slate-500">
+    <div 
+      className="flex flex-col items-center p-2 rounded-lg border relative overflow-hidden transition-colors"
+      style={{ borderColor: severityColor + '66', backgroundColor: severityColor + '0A' }}
+    >
+      <div className="text-[9px] font-bold tracking-widest uppercase text-slate-500 mb-2 truncate w-full text-center">
+        {title}
+      </div>
+      
+      <div className="relative flex justify-center items-center">
+        <svg width="80" height="44" viewBox="0 0 80 44">
+          {/* Background track */}
+          <path 
+            d="M8 40 A32 32 0 0 1 72 40" 
+            fill="none" 
+            stroke="rgba(255,255,255,0.08)" 
+            strokeWidth="5" 
+            strokeLinecap="round"
+          />
+          {/* Colored fill - dasharray=100.5 is full arc length */}
+          <path 
+            d="M8 40 A32 32 0 0 1 72 40" 
+            fill="none" 
+            stroke={severityColor} 
+            strokeWidth="5" 
+            strokeLinecap="round"
+            strokeDasharray={100.5}
+            strokeDashoffset={100.5 - (score / 100 * 100.5)}
+            style={{ transition: 'stroke-dashoffset 0.8s ease-out' }}
+          />
+        </svg>
+        <div className="absolute bottom-1 font-bold text-xl" style={{ color: severityColor }}>
+          {score}
+        </div>
+      </div>
+
+      <div className="mt-2 flex flex-col items-center w-full gap-1">
+        <div 
+          className="text-[9px] font-bold px-2 py-0.5 rounded-full" 
+          style={{ color: severityColor, backgroundColor: severityColor + '33' }}
+        >
+          {level}
+        </div>
+        <div className="w-full h-[3px] rounded-full overflow-hidden bg-slate-800/50 mt-1">
+          <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${score}%`, backgroundColor: severityColor }}></div>
+        </div>
+        <div className="text-[8px] font-medium mt-0.5">
           {delta === 0 ? (
-            <span>— stable</span>
+            <span className="text-slate-400">— stable</span>
           ) : delta > 0 ? (
             <span className="text-rose-500">↑ +{delta} from last reading</span>
           ) : (
             <span className="text-emerald-500">↓ {delta} from last reading</span>
           )}
         </div>
-      </div>
-      
-      <div className="flex items-center gap-4">
-        <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded ${color} ${bgColor}`}>
-          {level}
-        </span>
-        <span className={`text-xl font-bold w-8 text-right ${color}`}>
-          {score}
-        </span>
+        <div className="mt-1 flex justify-center w-full">
+          <LineChart width={100} height={24} data={sparkData}>
+            <Line 
+              type="monotone" 
+              dataKey="risk_score" 
+              stroke={severityColor}
+              strokeWidth={1.5}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </div>
       </div>
     </div>
   );

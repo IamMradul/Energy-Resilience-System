@@ -46,7 +46,7 @@ export default function AlertFeed() {
   };
 
   return (
-    <div className="fixed bottom-14 right-4 bg-[#0d1526] border border-white/10 shadow-lg shadow-black/50 rounded-lg w-80 z-50 flex flex-col transition-all duration-300">
+    <>
       <style>{`
         @keyframes pulseDot {
           0% { transform: scale(1); }
@@ -72,75 +72,87 @@ export default function AlertFeed() {
         }
       `}</style>
 
-      <div 
-        className="flex items-center justify-between font-bold p-3 cursor-pointer hover:bg-white/5 rounded-t-lg transition-colors border-b border-white/5"
-        onClick={handleToggle}
-      >
-        <div className="flex items-center gap-2 text-sm">
-          <Bell className="w-4 h-4 text-warning" /> 
-          <span>AlertFeed</span>
-          {unreadCount > 0 && !isExpanded && (
-            <span className="bg-[#3b82f6] text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1">
-              {unreadCount}
-            </span>
-          )}
-        </div>
-        <div>
-          {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
-        </div>
-      </div>
-      
-      {isExpanded && (
-        <div className="relative">
-          <div className="flex flex-col gap-0 text-xs max-h-80 overflow-y-auto custom-scrollbar">
-            {loading && <div className="text-gray-500 italic p-4 text-center">Connecting to live feed...</div>}
-            {!loading && alerts.length === 0 && <div className="text-gray-500 italic p-4 text-center">No recent alerts.</div>}
-            
-            {alerts.map((alert, idx) => {
-              let title = alert.title;
-              if (title.includes('refineries at risk')) {
-                const parts = title.split(': ');
-                if (parts.length > 1) {
-                  const unique = [...new Set(parts[1].split(', '))];
-                  title = `${unique.length} refineries at risk via ${parts[0].split('via ')[1]}: ${unique.join(', ')}`;
-                }
-              }
-
-              // Assume newest items are at the top, animate only the first 3 on mount
-              const delay = idx < 3 ? `${idx * 100}ms` : '0ms';
-              
-              return (
-                <div 
-                  key={alert.id} 
-                  className="p-3 border-b border-white/5 flex gap-2 animate-slide-in animate-flash-bg group"
-                  style={{ animationDelay: `${delay}, 0ms` }}
-                >
-                  <div className="mt-1 flex-shrink-0">
-                    {alert.severity === 'CRITICAL' ? <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse-dot"></div> :
-                     alert.severity === 'HIGH' ? <div className="w-2 h-2 rounded-full bg-orange-500"></div> :
-                     alert.severity === 'MEDIUM' ? <div className="w-2 h-2 rounded-full bg-amber-500"></div> :
-                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div>}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-1 gap-2">
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded border ${getSourceStyle(alert.source || 'NewsAPI')}`}>
-                        {alert.source || 'NewsAPI'}
-                      </span>
-                      <span className="text-[9px] text-slate-500 whitespace-nowrap cursor-default" title={new Date(alert.created_at || '').toLocaleString()}>
-                        {timeAgo(alert.created_at)}
-                      </span>
-                    </div>
-                    <div className="text-slate-200 leading-tight">
-                      {title}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+      {!isExpanded ? (
+        <div 
+          onClick={handleToggle}
+          className="fixed bottom-14 right-4 z-50 bg-[#0d1526]/90 backdrop-blur border border-border p-3.5 rounded-full shadow-xl cursor-pointer hover:bg-slate-800 transition-colors flex items-center justify-center group"
+          title="Open Alert Feed"
+        >
+          <div className="relative">
+            <Bell className="w-5 h-5 text-warning group-hover:animate-pulse" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold shadow">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0d1526] to-transparent pointer-events-none rounded-b-lg"></div>
+        </div>
+      ) : (
+        <div className="fixed bottom-14 right-4 bg-[#0d1526]/95 backdrop-blur border border-border shadow-2xl shadow-black/50 rounded-lg w-80 z-50 flex flex-col transition-all duration-300">
+          <div 
+            className="flex items-center justify-between font-bold p-3 cursor-pointer hover:bg-slate-800/50 rounded-t-lg transition-colors border-b border-border"
+            onClick={handleToggle}
+          >
+            <div className="flex items-center gap-2 text-sm">
+              <Bell className="w-4 h-4 text-warning" /> 
+              <span>AlertFeed</span>
+            </div>
+            <div>
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="flex flex-col gap-0 text-xs max-h-80 overflow-y-auto custom-scrollbar">
+              {loading && <div className="text-gray-500 italic p-4 text-center">Connecting to live feed...</div>}
+              {!loading && alerts.length === 0 && <div className="text-gray-500 italic p-4 text-center">No recent alerts.</div>}
+              
+              {alerts.map((alert, idx) => {
+                let title = alert.title;
+                if (title.includes('refineries at risk')) {
+                  const parts = title.split(': ');
+                  if (parts.length > 1) {
+                    const unique = [...new Set(parts[1].split(', '))];
+                    title = `${unique.length} refineries at risk via ${parts[0].split('via ')[1]}: ${unique.join(', ')}`;
+                  }
+                }
+
+                // Assume newest items are at the top, animate only the first 3 on mount
+                const delay = idx < 3 ? `${idx * 100}ms` : '0ms';
+                
+                return (
+                  <div 
+                    key={alert.id} 
+                    className="p-3 border-b border-border flex gap-2 animate-slide-in animate-flash-bg group"
+                    style={{ animationDelay: `${delay}, 0ms` }}
+                  >
+                    <div className="mt-1 flex-shrink-0">
+                      {alert.severity === 'CRITICAL' ? <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse-dot"></div> :
+                       alert.severity === 'HIGH' ? <div className="w-2 h-2 rounded-full bg-orange-500"></div> :
+                       alert.severity === 'MEDIUM' ? <div className="w-2 h-2 rounded-full bg-amber-500"></div> :
+                       <div className="w-2 h-2 rounded-full bg-emerald-500"></div>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded border ${getSourceStyle(alert.source || 'NewsAPI')}`}>
+                          {alert.source || 'NewsAPI'}
+                        </span>
+                        <span className="text-[9px] text-slate-500 whitespace-nowrap cursor-default" title={new Date(alert.created_at || '').toLocaleString()}>
+                          {timeAgo(alert.created_at)}
+                        </span>
+                      </div>
+                      <div className="text-slate-200 leading-tight">
+                        {title}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0d1526] to-transparent pointer-events-none rounded-b-lg"></div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

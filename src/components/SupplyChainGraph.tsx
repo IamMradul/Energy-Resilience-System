@@ -53,8 +53,13 @@ export default function SupplyChainGraph() {
           }
         });
 
-        // Sort chokepoints by risk descending
-        const chokepoints = Array.from(chokepointsMap.values()).sort((a,b) => b.riskScore.low - a.riskScore.low);
+        // Sort chokepoints by predefined vertical layout
+        const order = ['Strait of Hormuz', 'Red Sea/Bab-el-Mandeb', 'Strait of Malacca', 'Cape of Good Hope'];
+        const chokepoints = Array.from(chokepointsMap.values()).sort((a,b) => {
+          const idxA = order.indexOf(a.chokepoint);
+          const idxB = order.indexOf(b.chokepoint);
+          return (idxA !== -1 ? idxA : 999) - (idxB !== -1 ? idxB : 999);
+        });
         
         // Sort suppliers so they group by chokepoint (prevents crossing lines)
         const suppliers = Array.from(uniqueSuppliers).sort((a, b) => {
@@ -312,7 +317,7 @@ export default function SupplyChainGraph() {
               </h4>
               <button 
                 onClick={() => setSelectedSupplier(null)} 
-                className="text-gray-400 hover:text-white w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                className="text-gray-400 hover:text-white w-8 h-8 rounded-full hover:bg-slate-800/50 flex items-center justify-center transition-colors"
               >
                 &times;
               </button>
@@ -322,7 +327,7 @@ export default function SupplyChainGraph() {
                 <div className="text-gray-400 text-sm italic">No active downstream routes found.</div>
               )}
               {getPathsForSupplier(selectedSupplier).map((path, idx) => (
-                <div key={idx} className="bg-[#111827] rounded-lg p-3 border border-white/5 flex flex-col gap-2 transition-all hover:bg-white/5">
+                <div key={idx} className="bg-[#111827] rounded-lg p-3 border border-border flex flex-col gap-2 transition-all hover:bg-slate-800/50">
                   <div className="flex items-center gap-2 text-sm text-gray-200">
                     <span className="font-bold text-success">{selectedSupplier}</span>
                     <span className="text-gray-500 text-xs">→</span>

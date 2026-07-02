@@ -59,7 +59,7 @@ export default function KnowledgeGraphPanel({ selectedChokepoint, onClose }: Pan
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex flex-col gap-6">
-        <div className="bg-white/5 p-3 rounded border border-white/10">
+        <div className="bg-slate-800/50 p-3 rounded border border-border">
           <div className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Selected Node</div>
           <div className="font-semibold text-lg">{selectedChokepoint}</div>
         </div>

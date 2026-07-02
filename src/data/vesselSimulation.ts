@@ -50,7 +50,7 @@ export const SIMULATED_VESSELS: Vessel[] = [
   {
     mmsi: '636017890', name: 'CAPE NAVIGATOR',
     type: 'VLCC', flag: 'NG',
-    lat: -28.5, lng: 24.2,
+    lat: -25.0, lng: 28.0,
     speed: 15.1, heading: 75,
     destination: 'MANGALORE IN', cargo: 'BONNY LIGHT',
     status: 'UNDERWAY'
@@ -58,7 +58,7 @@ export const SIMULATED_VESSELS: Vessel[] = [
   {
     mmsi: '311001234', name: 'ATLANTIC PIONEER',
     type: 'VLCC', flag: 'US',
-    lat: -18.3, lng: 38.6,
+    lat: -15.0, lng: 35.0,
     speed: 14.8, heading: 60,
     destination: 'KANDLA IN', cargo: 'WTI CRUDE',
     status: 'UNDERWAY'

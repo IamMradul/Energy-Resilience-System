@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { exportBriefing } from '../lib/exportPDF';
 
 export default function Header({ isAgentsRunning }: { isAgentsRunning?: boolean }) { 
   const [time, setTime] = useState(new Date());
@@ -50,10 +51,10 @@ export default function Header({ isAgentsRunning }: { isAgentsRunning?: boolean 
   };
 
   return (
-    <header className="h-16 border-b border-white/10 bg-[#0a0f1e] flex items-center px-6 justify-between shadow-md">
+    <header className="h-16 border-b border-border bg-[#0a0f1e] flex items-center px-6 justify-between shadow-md">
       <div className="flex items-baseline gap-3">
         <span className="text-[#3b82f6] font-bold text-[1.4rem] tracking-wider">OORJA</span> 
-        <span className="text-slate-400 text-[0.75rem] uppercase tracking-widest hidden sm:inline border-l border-white/20 pl-3">
+        <span className="text-slate-400 text-[0.75rem] uppercase tracking-widest hidden sm:inline border-l border-border pl-3">
           Energy Supply Chain Intelligence
         </span>
       </div>
@@ -74,6 +75,13 @@ export default function Header({ isAgentsRunning }: { isAgentsRunning?: boolean 
           <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
           System Live
         </div>
+
+        <button 
+          onClick={() => exportBriefing().catch(console.error)}
+          className="text-white text-[13px] font-bold px-3 py-1.5 rounded-md transition-colors bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600 hover:border-blue-500 flex items-center gap-1.5"
+        >
+          📄 Export Briefing
+        </button>
 
         <button 
           onClick={simulateCrisis}

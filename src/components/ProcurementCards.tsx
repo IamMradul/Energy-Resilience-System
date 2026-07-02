@@ -19,8 +19,9 @@ export default function ProcurementCards() {
   }
 
   const deduped = recommendations.reduce((acc, rec) => {
-    const key = `${rec.source}-${rec.route}`;
-    if (!acc[key] || new Date(rec.created_at!) > new Date(acc[key].created_at!)) {
+    const key = rec.source;
+    if (!key) return acc;
+    if (!acc[key] || (acc[key].rank ?? 99) > (rec.rank ?? 99)) {
       acc[key] = rec;
     }
     return acc;
@@ -28,7 +29,7 @@ export default function ProcurementCards() {
 
   const displayRecs = Object.values(deduped)
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    .slice(0, 6);
+    .slice(0, 5);
 
   if (displayRecs.length === 0) {
     return <div className="text-gray-500 italic">No alternative procurement recommendations currently required.</div>;
@@ -53,7 +54,8 @@ export default function ProcurementCards() {
 function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
   const { rank, source, route, spot_price_usd, transit_days, priority, tanker_availability, port_congestion, grade_compatible_refineries } = rec;
 
-  const prioColor = priority === 'HIGH' ? 'bg-success text-success' : priority === 'MED' ? 'bg-warning text-warning' : 'bg-danger text-danger';
+  const prioBadgeColor = priority === 'HIGH' ? 'bg-success/20 text-success' : priority === 'MED' ? 'bg-warning/20 text-warning' : 'bg-danger/20 text-danger';
+  const prioPillColor = priority === 'HIGH' ? 'bg-success/10 text-success' : priority === 'MED' ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger';
   const borderColor = priority === 'HIGH' ? 'border-l-success' : priority === 'MED' ? 'border-l-warning' : 'border-l-danger';
   const tankerColor = tanker_availability === 'HIGH' ? 'text-success' : tanker_availability === 'MEDIUM' ? 'text-warning' : 'text-danger';
   const refineriesLength = grade_compatible_refineries ? grade_compatible_refineries.length : 0;
@@ -74,13 +76,13 @@ function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
       `}</style>
       
       {/* Header */}
-      <div className="p-3 pb-2 flex justify-between items-start border-b border-white/5">
+      <div className="p-3 pb-2 flex justify-between items-start border-b border-border">
         <div className="flex items-center gap-2">
-          <div className={`w-5 h-5 rounded flex items-center justify-center text-[0.6rem] font-bold ${prioColor.replace('text-', 'bg-opacity-20 text-')}`}>
+          <div className={`w-5 h-5 rounded flex items-center justify-center text-[0.6rem] font-bold ${prioBadgeColor}`}>
             #{rank}
           </div>
           <div className="flex items-center gap-2">
-            <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${prioColor.replace('text-', 'bg-opacity-10 text-')}`}>
+            <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${prioPillColor}`}>
               {priority} PRIORITY
             </span>
             <span className="text-slate-200 font-medium text-base">{source}</span>
@@ -103,11 +105,11 @@ function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
           </div>
         </div>
         
-        <div className="flex flex-col gap-1.5 mt-1 border-t border-white/5 pt-2">
+        <div className="flex flex-col gap-1.5 mt-1 border-t border-border pt-2">
           <div className="flex items-center gap-2 text-xs">
             <Factory className="w-3 h-3 text-slate-500" />
             {grade_compatible_refineries?.map(ref => (
-              <span key={ref} className="bg-white/5 text-slate-300 px-1.5 py-0.5 rounded border border-white/5">{ref}</span>
+              <span key={ref} className="bg-slate-800/50 text-slate-300 px-1.5 py-0.5 rounded border border-border">{ref}</span>
             ))}
           </div>
           <div className="flex justify-between items-center text-xs text-slate-400 mt-1">
@@ -117,7 +119,7 @@ function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
             </div>
             <div className="flex items-center gap-2">
               Grade match:
-              <div className="w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div className="w-20 h-1.5 rounded-full bg-slate-800/50 overflow-hidden">
                 <div className="h-full bg-blue-500 transition-all duration-700 ease-out" style={{ width: `${matchPct}%` }}></div>
               </div>
             </div>

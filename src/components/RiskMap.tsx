@@ -6,6 +6,24 @@ import { useVesselTracking } from '../data/vesselSimulation';
 import KnowledgeGraphPanel from './KnowledgeGraphPanel';
 import { useRealtimeRiskScores } from '../hooks/useRealtimeRiskScores';
 
+const INDIAN_PORTS = [
+  { name: 'Kandla/Sikka', lat: 23.03, lng: 70.22, refinery: 'Reliance Jamnagar' },
+  { name: 'JNPT Mumbai', lat: 18.95, lng: 72.93, refinery: 'HPCL Mumbai' },
+  { name: 'Kochi Port', lat: 9.97, lng: 76.27, refinery: 'BPCL Kochi' },
+  { name: 'Paradip Port', lat: 20.32, lng: 86.62, refinery: 'IOC Paradip' },
+  { name: 'New Mangalore', lat: 12.92, lng: 74.82, refinery: 'MRPL Mangalore' },
+  { name: 'Visakhapatnam', lat: 17.69, lng: 83.22, refinery: 'HPCL Vizag' },
+];
+
+const createPortIcon = () => {
+  return L.divIcon({
+    className: 'custom-port-icon',
+    html: `<div style="width:10px;height:10px;background:#3b82f6;transform:rotate(45deg);border:1px solid #60a5fa;box-shadow:0 0 5px rgba(59,130,246,0.6);"></div>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6]
+  });
+};
+
 // Custom icons based on vessel status/type
 const createVesselIcon = (vessel: any) => {
   let color = 'bg-blue-500'; // default VLCC safe
@@ -19,7 +37,7 @@ const createVesselIcon = (vessel: any) => {
 
   return L.divIcon({
     className: 'custom-vessel-icon',
-    html: `<div class="${color} rounded-full border-2 border-white/20 shadow-lg" style="width: ${size}px; height: ${size}px;"></div>`,
+    html: `<div class="${color} rounded-full border-2 border-border shadow-lg" style="width: ${size}px; height: ${size}px;"></div>`,
     iconSize: [size, size],
     iconAnchor: [size/2, size/2]
   });
@@ -29,6 +47,7 @@ export default function RiskMap() {
   const vessels = useVesselTracking();
   const { riskScores } = useRealtimeRiskScores();
   const [selectedChokepoint, setSelectedChokepoint] = useState<string | null>(null);
+  const [showLegend, setShowLegend] = useState(true);
 
   const getRisk = (corridor: string) => {
     return riskScores.find(s => s.corridor.includes(corridor))?.risk_score || 0;
@@ -42,7 +61,7 @@ export default function RiskMap() {
 
   return (
     <div className="absolute inset-0">
-      <MapContainer center={[20, 60]} zoom={4} style={{ height: '100%', width: '100%', background: '#0B0F19' }} zoomControl={false}>
+      <MapContainer center={[15.0, 60.0]} zoom={3} style={{ height: '100%', width: '100%', background: '#0B0F19' }} zoomControl={false}>
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -73,26 +92,57 @@ export default function RiskMap() {
         </Circle>
 
         {/* Refineries */}
-        <CircleMarker center={[23.03, 70.21]} radius={6} pathOptions={{ color: '#10B981', fillColor: '#10B981', fillOpacity: 0.8 }}>
-          <Popup>Kandla Port / Sikka</Popup>
-        </CircleMarker>
-        <CircleMarker center={[19.07, 72.87]} radius={6} pathOptions={{ color: '#10B981', fillColor: '#10B981', fillOpacity: 0.8 }}>
-          <Popup>Mumbai Ports</Popup>
-        </CircleMarker>
+        {INDIAN_PORTS.map((port, idx) => (
+          <Marker key={idx} position={[port.lat, port.lng]} icon={createPortIcon()}>
+            <Popup className="custom-popup" maxWidth={200}>
+              <div style={{
+                background: '#0d1526', color: '#f1f5f9',
+                padding: '8px 12px', borderRadius: '6px',
+                fontFamily: 'sans-serif'
+              }}>
+                <div style={{ fontWeight: 700, fontSize: '13px', color: '#3b82f6' }}>{port.name}</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>Feeds: {port.refinery}</div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
 
         {/* Live Vessels */}
         {vessels.map(v => (
           <Marker key={v.mmsi} position={[v.lat, v.lng]} icon={createVesselIcon(v)}>
-            <Popup className="bg-card text-gray-200">
-              <div className="font-bold text-sm border-b border-border pb-1 mb-1">{v.name} ({v.flag})</div>
-              <div className="text-xs space-y-1">
-                <div><span className="text-gray-400">Type:</span> {v.type}</div>
-                <div><span className="text-gray-400">Speed:</span> {v.speed.toFixed(1)} kts</div>
-                <div><span className="text-gray-400">Heading:</span> {v.heading}&deg;</div>
-                <div><span className="text-gray-400">Cargo:</span> {v.cargo}</div>
-                <div><span className="text-gray-400">Dest:</span> {v.destination}</div>
-                <div className={`font-semibold ${v.alert ? 'text-danger' : 'text-success'}`}>
-                  {v.status} {v.alert ? ` - ${v.alert}` : ''}
+            <Popup className="custom-popup" maxWidth={220}>
+              <div style={{
+                background: '#0d1526', color: '#f1f5f9',
+                padding: '10px', borderRadius: '6px',
+                minWidth: '180px', fontFamily: 'sans-serif'
+              }}>
+                <div style={{
+                  fontWeight: 700, fontSize: '13px',
+                  marginBottom: '6px', color: '#3b82f6'
+                }}>
+                  {v.name}
+                </div>
+                <div style={{
+                  fontSize: '11px', color: '#94a3b8',
+                  display: 'grid', gridTemplateColumns: '1fr 1fr',
+                  gap: '4px'
+                }}>
+                  <span>Type:</span><span>{v.type}</span>
+                  <span>Flag:</span><span>{v.flag}</span>
+                  <span>Speed:</span><span>{v.speed.toFixed(1)} knots</span>
+                  <span>Heading:</span><span>{v.heading}&deg;</span>
+                  <span>Cargo:</span><span>{v.cargo}</span>
+                  <span>Dest:</span><span>{v.destination}</span>
+                  <span>Status:</span>
+                  <span style={{
+                    color: v.status === 'DIVERTED' ? '#ef4444' :
+                           v.status === 'AT ANCHOR' ? '#94a3b8' : '#10b981'
+                  }}>{v.status}</span>
+                  {v.alert && (
+                    <span style={{ color: '#ef4444', gridColumn: '1 / -1', marginTop: '4px' }}>
+                      ⚠ {v.alert}
+                    </span>
+                  )}
                 </div>
               </div>
             </Popup>
@@ -106,6 +156,43 @@ export default function RiskMap() {
           onClose={() => setSelectedChokepoint(null)} 
         />
       )}
+
+      {/* Legend */}
+      <div className="absolute bottom-6 left-6 z-[1000] pointer-events-auto">
+        {showLegend ? (
+          <div className="bg-[#0d1526]/90 backdrop-blur border border-border p-3 rounded-lg shadow-xl relative">
+            <button 
+              onClick={() => setShowLegend(false)}
+              className="absolute top-2 right-2 text-slate-500 hover:text-slate-300 transition-colors"
+              title="Hide Legend"
+            >
+              ✕
+            </button>
+            <div className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-3 pr-6">Map Legend</div>
+            <div className="flex flex-col gap-2.5 text-[11px] text-slate-300">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500 flex-shrink-0"></div>
+                <span>High Risk Chokepoint</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-blue-500 border border-slate-700 flex-shrink-0"></div>
+                <span>Vessel (VLCC/Suezmax/Aframax)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-blue-500 border border-blue-400 rotate-45 ml-0.5 flex-shrink-0"></div>
+                <span className="ml-0.5">Indian Refinery Port</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <button 
+            onClick={() => setShowLegend(true)}
+            className="bg-[#0d1526]/90 backdrop-blur border border-border px-3 py-2 rounded-lg shadow-xl text-[10px] font-bold text-slate-500 tracking-wider uppercase hover:text-slate-300 transition-colors flex items-center gap-2"
+          >
+            <span className="text-blue-500 text-xs">ℹ</span> Show Legend
+          </button>
+        )}
+      </div>
     </div>
   );
 }

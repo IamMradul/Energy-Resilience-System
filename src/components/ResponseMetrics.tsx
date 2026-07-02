@@ -30,7 +30,7 @@ export default function ResponseMetrics() {
   }, []);
 
   return (
-    <div className="bg-[#0d1526] border border-white/10 rounded-lg p-4 flex flex-col justify-between h-full">
+    <div className="bg-[#0d1526] border border-border rounded-lg p-4 flex flex-col justify-between h-full">
       <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3 flex items-center gap-2">
         <span className="text-[#3b82f6]">⚡</span> Response Performance
       </div>
@@ -50,7 +50,7 @@ export default function ResponseMetrics() {
         </div>
       </div>
 
-      <div className="flex flex-col text-[0.8rem] text-slate-300 gap-1 border-t border-white/5 pt-3 mb-4">
+      <div className="flex flex-col text-[0.8rem] text-slate-300 gap-1 border-t border-border pt-3 mb-4">
         <div className="flex justify-between">
           <span>Agents fired today:</span>
           <span className="font-bold text-white">{counts.agents}</span>
@@ -67,7 +67,7 @@ export default function ResponseMetrics() {
 
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <span className="whitespace-nowrap">SLA compliance:</span>
-        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden flex items-center">
+        <div className="flex-1 h-1.5 bg-slate-800/50 rounded-full overflow-hidden flex items-center">
           <div className="h-full bg-success w-[98%]"></div>
         </div>
         <span className="font-bold text-white">98%</span>

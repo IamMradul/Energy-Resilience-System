@@ -65,11 +65,13 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e] text-gray-100 flex flex-col font-sans pb-10">
-      <Header isAgentsRunning={isAgentsRunning} />
+    <div className="h-screen bg-[#0a0f1e] text-gray-100 flex flex-col font-sans overflow-hidden">
+      <div className="sticky top-0 z-50">
+        <Header isAgentsRunning={isAgentsRunning} />
+      </div>
 
       {/* Tabs */}
-      <div className="px-6 py-2 border-b border-white/10 bg-[#0d1526]/50 flex gap-6 shadow-sm">
+      <div className="sticky top-[64px] z-40 px-6 py-2 border-b border-border bg-[#0d1526]/50 flex gap-6 shadow-sm">
         {['Dashboard', 'Supply Chain Graph', 'Vessel Tracking', 'Scenarios'].map(tab => (
           <button 
             key={tab}
@@ -81,14 +83,14 @@ function App() {
         ))}
       </div>
 
-      <main className="flex-1 flex flex-col p-4 h-[calc(100vh-8rem)]">
+      <main className="flex-1 flex flex-col min-h-0 pb-10">
         
         {activeTab === 'Dashboard' && (
-          <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
+          <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_350px_320px] gap-4 p-4">
             {/* Left Column: Map & Gauges */}
-            <div className="col-span-12 lg:col-span-7 flex flex-col gap-3 h-full">
-              <div className="bg-[#0d1526] rounded-lg border border-white/10 h-[500px] shrink-0 relative overflow-hidden flex flex-col">
-                <div className="p-3 border-b border-white/10 text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+            <div className="flex flex-col gap-4 h-full overflow-y-auto overflow-x-hidden pb-4 pr-2">
+              <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg min-h-[400px] flex-1 shrink-0 relative overflow-hidden flex flex-col">
+                <div className="p-3 border-b border-border text-[0.7rem] font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2 bg-black/20">
                   <Activity className="w-4 h-4 text-[#3b82f6]" />
                   Live Risk Heatmap & Corridors
                 </div>
@@ -96,33 +98,41 @@ function App() {
                   <RiskMap />
                 </div>
               </div>
-              <div className="flex-none grid grid-cols-2 gap-3">
-                <SPRTimeline />
-                <ThreatLevelBar />
+              <div className="flex-none grid grid-cols-2 gap-4">
+                <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                  <MiniScenarioPanel />
+                </div>
+                <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                  <SupplyFlowMetrics />
+                </div>
               </div>
-              <div className="flex-1 grid grid-cols-2 gap-3 min-h-0">
-                <MiniScenarioPanel />
-                <SupplyFlowMetrics />
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                <RiskGauges />
               </div>
             </div>
 
-            {/* Right Column: Gauges, Procurement, Metrics */}
-            <div className="col-span-12 lg:col-span-5 flex flex-col gap-3 h-full overflow-hidden">
-              <div className="flex-none">
-                <RiskGauges />
-              </div>
-
-              <div className="flex-1 min-h-0 bg-[#0d1526] border border-white/10 rounded-lg p-4 flex flex-col">
-                <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3 flex items-center gap-2">
+            {/* Center Column: Procurement Cards */}
+            <div className="flex flex-col gap-4 h-full overflow-y-auto overflow-x-hidden pb-4 pr-2">
+              <div className="flex-1 bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg flex flex-col min-h-[500px] overflow-hidden">
+                <div className="p-3 border-b border-border text-[0.7rem] font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2 bg-black/20">
                   <GitCommit className="w-4 h-4 text-slate-400" />
                   Adaptive Procurement
                 </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                <div className="flex-1 overflow-y-auto p-4 pt-2">
                   <ProcurementCards />
                 </div>
               </div>
+            </div>
 
-              <div className="flex-none h-[180px]">
+            {/* Right Column: SPR + alerts + response */}
+            <div className="flex flex-col gap-4 h-full overflow-y-auto overflow-x-hidden pb-4 pr-2">
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                <SPRTimeline />
+              </div>
+              <div className="flex-none bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
+                <ThreatLevelBar />
+              </div>
+              <div className="flex-none h-[180px] bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg overflow-hidden">
                 <ResponseMetrics />
               </div>
             </div>
@@ -130,13 +140,13 @@ function App() {
         )}
 
         {activeTab === 'Supply Chain Graph' && (
-          <div className="flex-1 min-h-0 h-full flex flex-col">
+          <div className="flex-1 min-h-0 flex flex-col p-4">
             <SupplyChainGraph />
           </div>
         )}
 
         {activeTab === 'Vessel Tracking' && (
-          <div className="flex-1 bg-card rounded-lg border border-border relative overflow-hidden flex flex-col min-h-0">
+          <div className="flex-1 bg-card rounded-lg border border-border relative overflow-hidden flex flex-col min-h-0 m-4">
             <div className="p-3 border-b border-border font-semibold flex items-center gap-2">
               <Activity className="w-5 h-5 text-primary" />
               AIS Vessel Tracking Map
@@ -148,9 +158,9 @@ function App() {
         )}
 
         {activeTab === 'Scenarios' && (
-          <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-            <div className="bg-card rounded-lg border border-border p-4">
-              <div className="font-semibold flex items-center gap-2 mb-4">
+          <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto flex flex-col gap-4 overflow-y-auto p-4">
+            <div className="bg-[#0d1526]/80 backdrop-blur-md rounded-xl border border-border shadow-lg p-6 mb-4">
+              <div className="font-semibold flex items-center gap-2 mb-4 text-slate-200">
                 <FileWarning className="w-5 h-5 text-warning" />
                 Disruption Scenario Modeler
               </div>
@@ -165,7 +175,9 @@ function App() {
       <AlertFeed />
       
       {/* Fixed System Status */}
-      <SystemStatus />
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <SystemStatus />
+      </div>
     </div>
   );
 }

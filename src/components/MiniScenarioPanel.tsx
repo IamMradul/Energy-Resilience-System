@@ -4,6 +4,12 @@ import { runScenarioAgent } from '../lib/agents/scenarioAgent';
 import type { ScenarioResult } from '../types/agents';
 import { Activity, Play, Zap, Scissors, Ship, AlertTriangle, ArrowDown, ArrowUp, AlertCircle } from 'lucide-react';
 
+const SCENARIO_LABELS: Record<string, string> = {
+  'hormuz_closure_40pct': 'Hormuz Closure (40%)',
+  'opec_emergency_cut': 'OPEC+ Emergency Cut',
+  'red_sea_suspension': 'Red Sea Suspension',
+  'combined_stress': 'Combined Stress (Hormuz + Red Sea)'
+};
 export default function MiniScenarioPanel() {
   const [scenario, setScenario] = useState<ScenarioResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +47,7 @@ export default function MiniScenarioPanel() {
   }
 
   return (
-    <div className="bg-[#0d1526] border border-white/10 rounded-lg p-4 h-full flex flex-col relative overflow-hidden">
+    <div className="bg-[#0d1526] border border-border rounded-lg p-4 h-full flex flex-col relative overflow-hidden">
       <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-slate-400" /> Active Scenario
@@ -58,9 +64,9 @@ export default function MiniScenarioPanel() {
 
       {loading || running ? (
         <div className="flex-1 flex flex-col gap-3 justify-center px-2">
-          <div className="h-4 bg-white/5 rounded animate-pulse w-3/4"></div>
-          <div className="h-4 bg-white/5 rounded animate-pulse w-full"></div>
-          <div className="h-4 bg-white/5 rounded animate-pulse w-5/6"></div>
+          <div className="h-4 bg-slate-800/50 rounded animate-pulse w-3/4"></div>
+          <div className="h-4 bg-slate-800/50 rounded animate-pulse w-full"></div>
+          <div className="h-4 bg-slate-800/50 rounded animate-pulse w-5/6"></div>
           {running && <div className="text-xs text-slate-400 mt-2 text-center">Simulating impact...</div>}
         </div>
       ) : !scenario ? (
@@ -76,7 +82,7 @@ export default function MiniScenarioPanel() {
               <button 
                 key={s.id}
                 onClick={() => handleRun(s.id)}
-                className="bg-white/5 hover:bg-white/10 border border-white/5 rounded p-2 text-xs text-left transition-colors flex items-center gap-2 text-slate-300 hover:text-white"
+                className="bg-slate-800/50 hover:bg-slate-800/50 border border-border rounded p-2 text-xs text-left transition-colors flex items-center gap-2 text-slate-300 hover:text-white"
               >
                 {s.icon} <span className="truncate">{s.id}</span>
               </button>
@@ -85,9 +91,9 @@ export default function MiniScenarioPanel() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col justify-between">
-          <div className="text-sm font-medium text-slate-200 mb-3">{scenario.event_type}</div>
+          <div className="text-sm font-medium text-slate-200 mb-3">{SCENARIO_LABELS[scenario.event_type] ?? scenario.event_type}</div>
           
-          <div className="flex flex-col gap-2 border-y border-white/5 py-3 mb-3">
+          <div className="flex flex-col gap-2 border-y border-border py-3 mb-3">
             <MetricRow label="Refinery run rate" value={`${scenario.impacts.refinery_run_rate_drop_pct}%`} type="down" />
             <MetricRow label="Fuel price impact" value={`${scenario.impacts.domestic_fuel_price_increase_pct}%`} type="up" />
             <MetricRow label="Power stress index" value={`${scenario.impacts.power_sector_stress_index}/100`} type="warning" />
@@ -99,7 +105,7 @@ export default function MiniScenarioPanel() {
               <span>Confidence</span>
               <span>{scenario.confidence_interval}</span>
             </div>
-            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
+            <div className="w-full h-1.5 bg-slate-800/50 rounded-full overflow-hidden mb-2">
               <div className="h-full bg-[#3b82f6] transition-all duration-700" style={{ width: `${confidenceVal}%` }}></div>
             </div>
             {scenario.mitigation_options && scenario.mitigation_options.length > 0 && (
