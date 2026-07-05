@@ -20,6 +20,22 @@ export async function runScenarioAgent(eventType: string): Promise<ScenarioResul
 
   const eventDescription = eventDescriptions[eventType] || eventType;
 
+  let extraInstructions = '';
+  if (eventType === 'combined_stress') {
+    extraInstructions = `
+CRITICAL: This is the WORST CASE scenario combining
+BOTH Hormuz 30% closure AND Red Sea full suspension.
+The days_to_supply_crunch MUST be between 7-11 days.
+It CANNOT be 14 days — that would mean combined stress
+is no worse than a single disruption, which is wrong.
+Hormuz alone = 13-18 days.
+Red Sea alone = 14 days.  
+Combined = 7-11 days (much worse, less time to react).
+GDP impact must be -0.8% to -1.2% (worse than individual).
+Refinery run rate drop must be -22% to -28%.
+`;
+  }
+
   const prompt = `You are an energy economist specializing in oil supply shock modeling for India.
 
 Scenario: ${eventDescription}
@@ -32,7 +48,7 @@ India baseline data:
 - Refinery capacity: 5.2 million barrels per day
 - Major refineries: Jamnagar (1.24 mbpd), Kochi (0.31 mbpd), 
   Paradip (0.3 mbpd), Mangalore (0.27 mbpd)
-
+${extraInstructions}
 Model the cascading impacts on India's energy system and economy.
 Return ONLY valid JSON, no markdown:
 

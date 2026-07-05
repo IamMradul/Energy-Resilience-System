@@ -18,7 +18,7 @@ const INDIAN_PORTS = [
 const createPortIcon = () => {
   return L.divIcon({
     className: 'custom-port-icon',
-    html: `<div style="width:10px;height:10px;background:#a855f7;transform:rotate(45deg);border:1px solid #c084fc;box-shadow:0 0 5px rgba(168,85,247,0.6);"></div>`,
+    html: `<div style="width:10px;height:10px;background:#3b82f6;transform:rotate(45deg);border:1px solid #3b82f6;box-shadow:0 0 5px rgba(59,130,246,0.6);"></div>`,
     iconSize: [12, 12],
     iconAnchor: [6, 6]
   });
@@ -174,7 +174,7 @@ export default function RiskMap() {
                 <span>Vessel (VLCC/Suezmax/Aframax)</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 bg-[#a855f7] border border-[#c084fc] rotate-45 ml-0.5 flex-shrink-0"></div>
+                <div className="w-2.5 h-2.5 bg-[#3b82f6] border border-[#3b82f6] rotate-45 ml-0.5 flex-shrink-0"></div>
                 <span className="ml-0.5">Indian Refinery Port</span>
               </div>
             </div>

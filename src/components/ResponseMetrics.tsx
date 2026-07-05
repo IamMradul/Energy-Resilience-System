@@ -29,40 +29,50 @@ export default function ResponseMetrics() {
     return () => clearInterval(interval);
   }, []);
 
+  const displayCounts = [
+    { label: 'Agents fired today', value: counts.agents },
+    { label: 'Alerts generated', value: counts.alerts },
+    { label: 'Recs delivered', value: counts.recs }
+  ];
+
   return (
     <div className="bg-[#0d1526] border border-border rounded-lg p-4 flex flex-col justify-between h-full">
-      <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3 flex items-center gap-2">
-        <span className="text-[#3b82f6]">⚡</span> Response Performance
+      <div className="text-[0.7rem] font-semibold tracking-widest uppercase text-slate-500 mb-3">
+        Response Performance
       </div>
 
       <div className="flex flex-col text-[0.8rem] text-slate-300 gap-1 mb-3">
         <div className="flex justify-between">
-          <span>Signal → Detection</span>
+          <span>Signal to Detection</span>
           <span className="font-bold text-white">&lt; 2 min</span>
         </div>
         <div className="flex justify-between">
-          <span>Detection → Score</span>
+          <span>Detection to Score</span>
           <span className="font-bold text-white">&lt; 5 min</span>
         </div>
         <div className="flex justify-between">
-          <span>Score → Rec</span>
+          <span>Score to Rec</span>
           <span className="font-bold text-white">&lt; 8 min</span>
         </div>
       </div>
 
-      <div className="flex flex-col text-[0.8rem] gap-2 border-t border-border pt-3 mb-4">
-        <div className="flex items-center justify-between">
-          <span className="text-slate-400">Agents fired today</span>
-          <span className="font-bold text-white">{counts.agents}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-slate-400">Alerts generated</span>
-          <span className="font-bold text-white">{counts.alerts}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-slate-400">Recs delivered</span>
-          <span className="font-bold text-white">{counts.recs}</span>
-        </div>
+      <div className="flex flex-col gap-0 border-t border-border pt-3 mb-4">
+        {displayCounts.map(({ label, value }) => (
+          <div key={label} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '3px 0',
+            borderBottom: '1px solid rgba(255,255,255,0.04)'
+          }}>
+            <span style={{fontSize:'8px', color:'#64748b'}}>
+              {label}
+            </span>
+            <span style={{fontSize:'12px', fontWeight:700, color:'#3b82f6'}}>
+              {value ?? 0}
+            </span>
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center gap-2 text-xs text-slate-400">

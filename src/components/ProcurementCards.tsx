@@ -79,19 +79,21 @@ function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
       `}</style>
       
       {/* Header */}
-      <div className="px-2.5 py-2 flex justify-between items-center border-b border-border">
-        <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
+      <div className="px-2.5 py-2 border-b border-border flex flex-col gap-1.5">
+        <div className="flex items-center gap-2 min-w-0 w-full">
           <div className={`flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-[0.6rem] font-bold ${prioBadgeColor}`}>
             #{rank}
           </div>
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className={`flex-shrink-0 text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${prioPillColor}`}>
-              {displayPriority} PRIORITY
-            </span>
-            <span className="text-slate-200 font-medium text-[0.85rem] whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{source}</span>
-          </div>
+          <span className={`flex-shrink-0 text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${prioPillColor}`}>
+            {displayPriority} PRIORITY
+          </span>
+          <span className="text-slate-200 font-medium text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex-1">
+            {source}
+          </span>
         </div>
-        <div className="flex-shrink-0 text-slate-300 font-bold text-base leading-none">${spot_price_usd?.toFixed(2)}/bbl</div>
+        <div className="text-right text-slate-300 font-bold text-base leading-none">
+          ${spot_price_usd?.toFixed(2)}/bbl
+        </div>
       </div>
 
       {/* Body */}
@@ -121,8 +123,15 @@ function Card({ rec, index }: { rec: ProcurementRec; index: number }) {
               <span>Congestion: <span className={`font-medium ${port_congestion === 'LOW' ? 'text-emerald-500' : port_congestion === 'MEDIUM' ? 'text-amber-500' : 'text-rose-500'}`}>{port_congestion}</span></span>
             </div>
           </div>
-          <div className="mt-1">
-            <span className="text-[10px] text-slate-500 block mb-1">Grade match</span>
+          <div style={{ marginTop: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span style={{ fontSize: '8px', color: '#64748b' }}>
+                Grade match
+              </span>
+              <span style={{ fontSize: '8px', color: '#3b82f6' }}>
+                {matchPct}%
+              </span>
+            </div>
             <div className="w-full h-1.5 rounded-full bg-slate-800/50 overflow-hidden">
               <div className="h-full bg-blue-500 transition-all duration-700 ease-out" style={{ width: `${matchPct}%` }}></div>
             </div>

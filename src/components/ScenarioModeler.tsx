@@ -45,6 +45,24 @@ export default function ScenarioModeler() {
     return () => { isMounted = false; };
   }, [selected]);
 
+  const SCENARIO_SHORT_LABELS: Record<string, string> = {
+    hormuz_closure_40pct: 'Hormuz',
+    opec_emergency_cut: 'OPEC+',
+    red_sea_suspension: 'Red Sea',
+    combined_stress: 'Combined'
+  };
+
+  const tableAndChartData = allScenarios.map(s => ({
+    id: s.id || s.event_type,
+    event_type: s.event_type,
+    full_label: SCENARIOS.find(x => x.id === s.event_type)?.label || s.event_type,
+    name: SCENARIO_SHORT_LABELS[s.event_type] ?? s.event_type,
+    refinery: Math.abs(s.impacts?.refinery_run_rate_drop_pct ?? 0),
+    fuel: s.impacts?.domestic_fuel_price_increase_pct ?? 0,
+    gdp: s.impacts?.gdp_trajectory_30d_pct ?? 0,
+    days: s.impacts?.days_to_supply_crunch ?? 0
+  }));
+
   return (
     <div className="flex flex-col gap-2">
       <select 
@@ -102,19 +120,7 @@ export default function ScenarioModeler() {
               </div>
             )}
 
-            {allScenarios.length > 0 && (() => {
-              const chartData = allScenarios.map(s => ({
-                id: s.id,
-                event_type: s.event_type,
-                full_label: SCENARIOS.find(x => x.id === s.event_type)?.label || s.event_type,
-                label: SCENARIOS.find(x => x.id === s.event_type)?.label.split(' ')[0] || s.event_type,
-                refinery: s.impacts?.refinery_run_rate_drop_pct ?? 0,
-                fuel: s.impacts?.domestic_fuel_price_increase_pct ?? 0,
-                gdp: s.impacts?.gdp_trajectory_30d_pct ?? 0,
-                days: s.impacts?.days_to_supply_crunch ?? 0
-              }));
-
-              return (
+            {allScenarios.length > 0 && (
                 <div className="mt-6 border-t border-border pt-4">
                   <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-3">
                     All Scenario Comparison
@@ -130,7 +136,7 @@ export default function ScenarioModeler() {
                       </tr>
                     </thead>
                     <tbody>
-                      {chartData.map(s => {
+                      {tableAndChartData.map(s => {
                         const isSelected = s.event_type === selected;
                         return (
                           <tr key={s.id} className={`border-b border-border ${isSelected ? 'bg-slate-800/50' : ''}`}>
@@ -150,8 +156,8 @@ export default function ScenarioModeler() {
                       Macro Impact Comparison
                     </h3>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData}>
-                        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <BarChart data={tableAndChartData}>
+                        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <Tooltip 
                           cursor={{ fill: 'transparent' }}
@@ -171,8 +177,7 @@ export default function ScenarioModeler() {
                     </ResponsiveContainer>
                   </div>
                 </div>
-              );
-            })()}
+            )}
           </>
         ) : (
           <div className="text-gray-500 italic">No simulation data available for this scenario yet. Wait for the agent to run.</div>

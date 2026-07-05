@@ -51,6 +51,13 @@ India's main refineries and their port dependencies:
 - IOC Panipat -> Kandla port (Gujarat)
 - HPCL Vizag -> Visakhapatnam port
 
+Each recommended source MUST have a unique spot_price_usd. Do not return identical prices for different crude grades. Real market prices:
+- Nigeria Bonny Light: typically $1-3 premium over Forcados
+- Nigeria Forcados: slightly lower grade, lower price
+- Brazil grades: mid-range
+- USA WTI: benchmark, varies daily
+Prices must differ by at least $0.50/bbl
+
 Generate 3 alternative procurement recommendations ranked by feasibility.
 Return ONLY a valid JSON array. No markdown, no explanation:
 
