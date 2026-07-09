@@ -13,13 +13,13 @@ export async function exportBriefing() {
   const dedupedRisk = Object.values((riskScores || []).reduce((acc, curr) => {
     if (!acc[curr.corridor]) acc[curr.corridor] = curr;
     return acc;
-  }, {} as Record<string, RiskScore>));
+  }, {} as Record<string, RiskScore>)) as RiskScore[];
 
   // Deduplicate procurement
-  const dedupedProc = Object.values((procurement || []).reduce((acc, curr) => {
+  const dedupedProc = (Object.values((procurement || []).reduce((acc, curr) => {
     if (!acc[curr.source]) acc[curr.source] = curr;
     return acc;
-  }, {} as Record<string, ProcurementRec>))
+  }, {} as Record<string, ProcurementRec>)) as ProcurementRec[])
   .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
   .slice(0, 3);
 
@@ -68,7 +68,7 @@ export async function exportBriefing() {
   doc.setTextColor(148, 163, 184);
   if (dedupedProc.length > 0) {
     dedupedProc.forEach((p) => {
-      doc.text(`• ${p.source} via ${p.route} (${p.volume_mbpd} MBPD) - $${p.estimated_cost_mm}/mo`, 20, y);
+      doc.text(`• ${p.source} via ${p.route} ($${p.spot_price_usd}/bbl) - ETA ${p.transit_days} days`, 20, y);
       y += 7;
     });
   } else {
