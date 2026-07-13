@@ -21,13 +21,10 @@ export async function runGeopoliticalRiskAgent(): Promise<any[] | null> {
   }
 
   let headlines: string[] = [];
-  const newsApiKey = import.meta.env.VITE_NEWS_API_KEY || '';
-
   try {
-    const url = `https://newsapi.org/v2/everything?q=oil+tanker+hormuz+opec+sanctions+red+sea&sortBy=publishedAt&pageSize=5&apiKey=${newsApiKey}`;
-    const response = await fetch(url);
+    const response = await fetch('/api/news');
     if (!response.ok) {
-      throw new Error(`NewsAPI error: ${response.status}`);
+      throw new Error(`NewsAPI proxy error: ${response.status}`);
     }
     const data = await response.json();
     headlines = data.articles.map((a: any) => a.title);

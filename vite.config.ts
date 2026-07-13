@@ -76,6 +76,35 @@ export default defineConfig({
             }
           });
         });
+        server.middlewares.use('/api/news', async (req, res) => {
+          if (req.method !== 'GET') {
+            res.statusCode = 405;
+            res.end();
+            return;
+          }
+          try {
+            const newsApiKey = env.VITE_NEWS_API_KEY || '';
+            const url = `https://newsapi.org/v2/everything?q=oil+tanker+hormuz+opec+sanctions+red+sea&sortBy=publishedAt&pageSize=5&apiKey=${newsApiKey}`;
+            
+            // Use native fetch to get the news
+            const fetch = (await import('node-fetch')).default || globalThis.fetch;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+              res.statusCode = response.status;
+              res.end(JSON.stringify({ error: `NewsAPI error: ${response.status}` }));
+              return;
+            }
+            
+            const data = await response.json();
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(data));
+          } catch (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+          }
+        });
+
       }
     }
   ],

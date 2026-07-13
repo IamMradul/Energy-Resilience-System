@@ -42,7 +42,19 @@ SPR drawdown schedule optimised
         ↓
 Policymakers and procurement teams act — not react
 ```
+<br>
+<br>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7a1bf4f2-5d8d-4b95-b279-68c9d504060b" />
+</p>
+<br>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8fe11ecd-340f-42c6-9130-9deb2d099956" width="48%" alt="Dashboard 3" />
+  <img src="https://github.com/user-attachments/assets/3394a0e5-9049-4721-84bb-697499e9f61c" width="48%" alt="Dashboard 2" />
+</p>
 
+<br>
+<br>
 ---
 
 ## 🏗️ System Architecture
@@ -120,21 +132,6 @@ Monitors news feeds, sanctions registries, and AIS vessel data to produce a **li
 - Cape of Good Hope (alternate route)
 - Strait of Malacca (Asia Pacific)
 
-**Output schema:**
-```json
-{
-  "agent": "geopolitical_risk",
-  "timestamp": "2026-06-23T10:45:00Z",
-  "corridor": "Strait of Hormuz",
-  "risk_score": 78,
-  "confidence": 0.85,
-  "signal_sources": ["Reuters", "MarineTraffic AIS", "OFAC registry"],
-  "reasoning": "Three tankers diverted in last 6 hours. New IRGC vessel movements detected.",
-  "recommendation": "Activate alternate procurement from West Africa and US Gulf Coast",
-  "data_freshness_seconds": 180
-}
-```
-
 ---
 
 ### 2. 📊 Disruption Scenario Modeller
@@ -148,69 +145,16 @@ Simulates specific disruption events and computes **cascading economic impacts**
 | Red Sea shipping suspension | Route diversion cost, delivery delay |
 | Combined multi-corridor stress | Worst-case national energy security |
 
-**Output schema:**
-```json
-{
-  "agent": "scenario_modeller",
-  "event_type": "hormuz_closure_40pct",
-  "assumptions": [
-    "40% of Hormuz traffic disrupted for 14 days",
-    "SPR drawdown begins day 3 at 0.2 mbpd",
-    "Alternate route via Cape adds 12 days transit"
-  ],
-  "impacts": {
-    "refinery_run_rate_drop_pct": 22,
-    "domestic_fuel_price_increase_pct": 14,
-    "power_sector_stress_index": 67,
-    "gdp_trajectory_30d_pct": -0.8
-  },
-  "confidence_interval": "85%"
-}
-```
-
 ---
 
 ### 3. 🛢️ Adaptive Procurement Orchestrator
 Identifies and ranks **alternative crude sources and logistics routes**, factoring in spot pricing, tanker availability, port congestion, and refinery grade compatibility.
-
-**Output schema:**
-```json
-{
-  "agent": "procurement_orchestrator",
-  "recommendations": [
-    {
-      "rank": 1,
-      "source": "Nigeria (Bonny Light)",
-      "route": "West Africa → Cape of Good Hope → Paradip",
-      "spot_price_usd_bbl": 84.5,
-      "transit_days": 24,
-      "grade_compatible_refineries": ["HPCL Vizag", "IOC Paradip"],
-      "tanker_availability": "HIGH",
-      "port_congestion": "LOW",
-      "priority": "HIGH"
-    }
-  ],
-  "signal_to_recommendation_minutes": 87
-}
-```
 
 ---
 
 ### 4. 🏭 Strategic Reserve Optimisation Agent
 Models **optimal SPR drawdown schedules** against supply gap forecasts, refinery demand curves, and replenishment window estimates.
 
-**Output schema:**
-```json
-{
-  "agent": "spr_optimiser",
-  "current_cover_days": 9.5,
-  "recommended_drawdown_mbpd": 0.15,
-  "projected_cover_days_after_drawdown": 6.2,
-  "replenishment_window_opens_days": 18,
-  "priority_refineries": ["Reliance Jamnagar", "BPCL Mumbai"],
-  "risk_if_no_action": "Reserve exhaustion in 9 days under current gap rate"
-}
-```
 
 ---
 
@@ -268,55 +212,6 @@ alert_feed           -- live geopolitical signal log
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- A free [Google AI Studio](https://aistudio.google.com) account (Gemini API key)
-- A free [Supabase](https://supabase.com) project
-- A free [NewsAPI](https://newsapi.org) key
-- A free [Alpha Vantage](https://alphavantage.co) key
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/energy-resilience-system.git
-cd energy-resilience-system
-
-# Install dependencies
-npm install
-
-# Copy environment variables
-cp .env.example .env
-```
-
-### Environment Variables
-
-```env
-# .env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_GEMINI_API_KEY=your_gemini_api_key
-VITE_NEWS_API_KEY=your_newsapi_key
-VITE_ALPHA_VANTAGE_KEY=your_alpha_vantage_key
-```
-
-### Run the development server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173) — the dashboard loads with simulated live data immediately, no API keys required for the prototype mode.
-
-### Build for production
-
-```bash
-npm run build
-npm run preview
-```
 
 ---
 
@@ -362,65 +257,7 @@ energy-resilience-system/
 
 ---
 
-## 🔑 Key Design Decisions
 
-**Why Gemini 1.5 Flash?**
-Free tier provides 1M tokens/day and 15 req/min — sufficient for all five agents in prototype and demo scenarios. Flash is fast enough for sub-2-hour signal-to-recommendation SLA.
-
-**Why Supabase over FastAPI + Redis + Pinecone?**
-Supabase collapses three separate infrastructure dependencies into one free-tier project. pgvector handles RAG without Pinecone. Realtime WebSockets replace Redis pub/sub. Edge Functions replace a FastAPI deployment. Dramatically reduces setup friction for a hackathon.
-
-**Why Leaflet over Deck.gl?**
-`react-leaflet` has a gentler learning curve and better TypeScript support for rapid prototyping. Deck.gl would be the production upgrade path for WebGL-accelerated AIS vessel density rendering.
-
-**Why simulated data first?**
-API rate limits and auth setup should not block UI development. The simulation layer (`useAgentSimulator`) generates realistic stochastic data — new risk events every 30 seconds, procurement recommendations refreshing every 2 minutes — making the prototype feel live without any API dependency.
-
----
-
-## 📊 Evaluation Criteria Alignment
-
-| Judging Criterion | Weight | How This System Addresses It |
-|------------------|--------|------------------------------|
-| Innovation | 25% | Multi-agent AI architecture with real-time geopolitical scoring — not a dashboard bolted onto existing tools |
-| Business Impact | 25% | Directly addresses India's 9.5-day SPR vulnerability; quantifies GDP impact per scenario |
-| Technical Excellence | 20% | TypeScript throughout, pgvector RAG, Supabase Realtime, explicit assumption logging |
-| Scalability | 15% | Supabase scales to production; agent layer is horizontally extensible; Neo4j KG grows with new supplier relationships |
-| User Experience | 15% | Dark command-center UI; sub-2-hour signal-to-rec SLA displayed live; mobile-responsive |
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1 — Prototype (Current)
-- [x] React dashboard with simulated agent outputs
-- [x] Leaflet risk heatmap with corridor overlays
-- [x] Recharts scenario waterfall + SPR timeline
-- [x] Live alert feed simulation
-
-### Phase 2 — Real API Integration (Completed)
-- [x] NewsAPI → Gemini pipeline for live geopolitical risk scoring
-- [x] Alpha Vantage crude price feeds
-- [x] Supabase Realtime replacing simulation hooks
-
-### Phase 3 — Production & Knowledge Graph (Completed)
-- [x] Neo4j AuraDB knowledge graph (supplier → route → refinery relationships)
-- [x] AIS Vessel Tracking simulation with MarineTraffic-like data
-- [x] Production Hardening: Gemini rate limiting, caching, and system health checks
-- [x] Live Supply Chain Topology SVG visualisation
-
-### Phase 4 — Future Enhancements
-- [ ] LangGraph multi-agent orchestration with memory
-- [ ] Gemini 1.5 Pro for scenario modelling (higher reasoning depth)
-- [ ] Export: PDF briefing generator for policymakers
-
----
-
-## 👥 Team
-
-Built for the **AI Supply Chain Resilience Hackathon** — Theme: Supply Chain Intelligence / Energy Security / Geopolitical Risk.
-
----
 
 ## 📄 License
 
