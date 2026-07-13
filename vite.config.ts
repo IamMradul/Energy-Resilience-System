@@ -87,7 +87,6 @@ export default defineConfig({
             const url = `https://newsapi.org/v2/everything?q=oil+tanker+hormuz+opec+sanctions+red+sea&sortBy=publishedAt&pageSize=5&apiKey=${newsApiKey}`;
             
             // Use native fetch to get the news
-            const fetch = (await import('node-fetch')).default || globalThis.fetch;
             const response = await fetch(url);
             
             if (!response.ok) {

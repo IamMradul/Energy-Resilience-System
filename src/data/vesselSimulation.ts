@@ -82,35 +82,60 @@ export const SIMULATED_VESSELS: Vessel[] = [
   }
 ]
 
-// Hook to animate vessels — updates positions every 10 seconds
+// Hook to animate vessels — updates positions every 1 second for smooth animation
 export function useVesselTracking() {
-  const [vessels, setVessels] = useState<Vessel[]>(SIMULATED_VESSELS)
+  const [vessels, setVessels] = useState<Vessel[]>(() => {
+    const saved = localStorage.getItem('vessel_state_v2');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return SIMULATED_VESSELS;
+  });
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setVessels(prev => prev.map(vessel => {
-        if (vessel.status === 'AT ANCHOR') return vessel
-        
-        try {
-          // Move vessel based on heading and speed
-          const speedKnots = vessel.speed
-          const headingRad = (vessel.heading * Math.PI) / 180
-          const distanceDeg = (speedKnots * 10) / 3600 / 60 // 10s movement
+      setVessels(prev => {
+        const next = prev.map((vessel, idx) => {
+          if (vessel.status === 'AT ANCHOR') return vessel;
           
-          return {
-            ...vessel,
-            lat: vessel.lat + Math.cos(headingRad) * distanceDeg,
-            lng: vessel.lng + Math.sin(headingRad) * distanceDeg
+          try {
+            // Accelerate time by 600x (1 second real-time = 10 minutes simulated) for visible map movement
+            const speedMultiplier = 600;
+            const timeElapsedHours = 1 / 3600; // 1 second interval in hours
+            const distanceDegrees = (vessel.speed * speedMultiplier / 60) * timeElapsedHours;
+            
+            // Navigation math (0 deg = North, 90 deg = East)
+            const headingRad = (vessel.heading * Math.PI) / 180;
+            
+            let newLat = vessel.lat + Math.cos(headingRad) * distanceDegrees;
+            // Adjust longitude based on latitude projection
+            let newLng = vessel.lng + (Math.sin(headingRad) * distanceDegrees) / Math.cos(vessel.lat * Math.PI / 180);
+
+            // Simple patrol reset: If they wander more than 15 degrees away, reset to start so they don't get lost
+            const initial = SIMULATED_VESSELS[idx];
+            if (Math.abs(newLat - initial.lat) > 15 || Math.abs(newLng - initial.lng) > 15) {
+              newLat = initial.lat;
+              newLng = initial.lng;
+            }
+
+            return {
+              ...vessel,
+              lat: newLat,
+              lng: newLng
+            };
+          } catch (e) {
+            return vessel;
           }
-        } catch (e) {
-          // Fail gracefully if calculation errors out
-          return vessel
-        }
-      }))
-    }, 10000) // update every 10 seconds
+        });
+        
+        // Persist to local storage so they don't reset when the page refreshes!
+        localStorage.setItem('vessel_state_v2', JSON.stringify(next));
+        return next;
+      });
+    }, 1000); // 1 second updates for smoother animation
     
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
   
-  return vessels
+  return vessels;
 }

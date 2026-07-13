@@ -26,15 +26,79 @@ const createPortIcon = () => {
 
 // Custom icons based on vessel status/type
 const createVesselIcon = (vessel: any) => {
-  let color = 'bg-blue-500';
-  if (vessel.status === 'DIVERTED') color = 'bg-red-500 animate-pulse';
-  else if (vessel.status === 'AT ANCHOR') color = 'bg-gray-500 animate-pulse';
+  let color = 'text-blue-500';
+  let animation = '';
+  if (vessel.status === 'DIVERTED') {
+    color = 'text-red-500';
+    animation = 'animate-pulse';
+  } else if (vessel.status === 'AT ANCHOR') {
+    color = 'text-gray-500';
+    animation = 'animate-pulse';
+  }
+
+  const isMoving = vessel.speed > 0.5;
+
+  // Ultra-realistic top-down crude oil tanker SVG
+  const svg = `<svg viewBox="-10 -10 60 140" width="24" height="60" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="hullGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#0f172a"/>
+        <stop offset="50%" stop-color="#334155"/>
+        <stop offset="100%" stop-color="#0f172a"/>
+      </linearGradient>
+      <linearGradient id="deckGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#7f1d1d"/>
+        <stop offset="50%" stop-color="#991b1b"/>
+        <stop offset="100%" stop-color="#7f1d1d"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Dynamic Wake (turbulent water behind) -->
+    ${isMoving ? `<path d="M20 95 Q 5 120 -5 130 Q 10 125 20 105 Q 30 125 45 130 Q 35 120 20 95 Z" fill="#ffffff" opacity="0.4" style="filter: blur(2px);"/>` : ''}
+
+    <!-- Hull with 3D gradient and glowing status stroke -->
+    <path d="M20 0 C32 0 36 15 36 25 L36 90 C36 96 32 100 20 100 C8 100 4 96 4 90 L4 25 C4 15 8 0 20 0 Z" fill="url(#hullGrad)" stroke="currentColor" stroke-width="2" />
+    
+    <!-- Reddish-brown crude carrier main deck -->
+    <path d="M20 3 C30 3 33 16 33 25 L33 85 C33 88 30 90 20 90 C10 90 7 88 7 85 L7 25 C7 16 10 3 20 3 Z" fill="url(#deckGrad)" />
+    
+    <!-- Status Overlay on Deck (semi-transparent) -->
+    <path d="M20 3 C30 3 33 16 33 25 L33 85 C33 88 30 90 20 90 C10 90 7 88 7 85 L7 25 C7 16 10 3 20 3 Z" fill="currentColor" fill-opacity="0.3" />
+
+    <!-- Piping Manifolds -->
+    <line x1="20" y1="20" x2="20" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+    <line x1="16" y1="25" x2="16" y2="75" stroke="#64748b" stroke-width="0.75" />
+    <line x1="24" y1="25" x2="24" y2="75" stroke="#64748b" stroke-width="0.75" />
+    <rect x="12" y="30" width="16" height="4" fill="#cbd5e1" rx="1" />
+    <rect x="12" y="45" width="16" height="4" fill="#cbd5e1" rx="1" />
+    <rect x="12" y="60" width="16" height="4" fill="#cbd5e1" rx="1" />
+    
+    <!-- Bow Helipad -->
+    <circle cx="20" cy="12" r="5" fill="none" stroke="#e2e8f0" stroke-width="0.5" />
+    <text x="20" y="13.5" fill="#e2e8f0" font-size="4" font-family="sans-serif" font-weight="bold" text-anchor="middle">H</text>
+
+    <!-- Superstructure (Aft Bridge) -->
+    <rect x="6" y="82" width="28" height="12" fill="#e2e8f0" rx="1" />
+    <rect x="8" y="84" width="24" height="8" fill="#f8fafc" rx="1" />
+    <rect x="2" y="86" width="36" height="3" fill="#ffffff" rx="1" />
+    <rect x="10" y="85" width="20" height="1.5" fill="#0f172a" />
+    
+    <!-- Engine Funnel -->
+    <rect x="16" y="91" width="8" height="4" fill="#334155" rx="1" />
+    <rect x="17" y="92.5" width="6" height="1.5" fill="#0f172a" />
+    
+    <!-- Orange Lifeboats -->
+    <rect x="3" y="88.5" width="3" height="6" fill="#f97316" rx="1.5" />
+    <rect x="34" y="88.5" width="3" height="6" fill="#f97316" rx="1.5" />
+  </svg>`;
 
   return L.divIcon({
-    className: 'custom-vessel-icon',
-    html: `<div class="${color} rounded-full border border-border shadow-[0_0_8px_rgba(59,130,246,0.8)]" style="width: 10px; height: 10px;"></div>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5]
+    className: 'custom-vessel-icon bg-transparent border-0',
+    html: `<div class="${color} ${animation}" style="filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6)) drop-shadow(0 0 10px currentColor); transform: rotate(${vessel.heading}deg); transform-origin: center; display: flex; align-items: center; justify-content: center;">
+      ${svg}
+    </div>`,
+    iconSize: [24, 60],
+    iconAnchor: [12, 30]
   });
 };
 
@@ -170,7 +234,15 @@ export default function RiskMap() {
                 <span>High Risk Chokepoint</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-blue-500 border border-slate-700 flex-shrink-0"></div>
+                <div className="text-blue-500 flex-shrink-0 flex items-center justify-center" style={{ filter: 'drop-shadow(0 0 4px currentColor)', width: '12px', height: '30px' }}>
+                  <svg viewBox="-5 -5 50 110" width="12" height="30" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0 C32 0 36 15 36 25 L36 90 C36 96 32 100 20 100 C8 100 4 96 4 90 L4 25 C4 15 8 0 20 0 Z" fill="#334155" stroke="currentColor" stroke-width="2" />
+                    <path d="M20 3 C30 3 33 16 33 25 L33 85 C33 88 30 90 20 90 C10 90 7 88 7 85 L7 25 C7 16 10 3 20 3 Z" fill="#7f1d1d" />
+                    <line x1="20" y1="20" x2="20" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+                    <rect x="6" y="82" width="28" height="12" fill="#e2e8f0" rx="1" />
+                    <rect x="2" y="86" width="36" height="3" fill="#ffffff" rx="1" />
+                  </svg>
+                </div>
                 <span>Vessel (VLCC/Suezmax/Aframax)</span>
               </div>
               <div className="flex items-center gap-3">
