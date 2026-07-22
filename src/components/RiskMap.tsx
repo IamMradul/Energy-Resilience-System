@@ -236,9 +236,9 @@ export default function RiskMap() {
               <div className="flex items-center gap-3">
                 <div className="text-blue-500 flex-shrink-0 flex items-center justify-center" style={{ filter: 'drop-shadow(0 0 4px currentColor)', width: '12px', height: '30px' }}>
                   <svg viewBox="-5 -5 50 110" width="12" height="30" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 0 C32 0 36 15 36 25 L36 90 C36 96 32 100 20 100 C8 100 4 96 4 90 L4 25 C4 15 8 0 20 0 Z" fill="#334155" stroke="currentColor" stroke-width="2" />
+                    <path d="M20 0 C32 0 36 15 36 25 L36 90 C36 96 32 100 20 100 C8 100 4 96 4 90 L4 25 C4 15 8 0 20 0 Z" fill="#334155" stroke="currentColor" strokeWidth="2" />
                     <path d="M20 3 C30 3 33 16 33 25 L33 85 C33 88 30 90 20 90 C10 90 7 88 7 85 L7 25 C7 16 10 3 20 3 Z" fill="#7f1d1d" />
-                    <line x1="20" y1="20" x2="20" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="20" y1="20" x2="20" y2="80" stroke="#94a3b8" strokeWidth="1.5" />
                     <rect x="6" y="82" width="28" height="12" fill="#e2e8f0" rx="1" />
                     <rect x="2" y="86" width="36" height="3" fill="#ffffff" rx="1" />
                   </svg>
