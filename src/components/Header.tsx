@@ -38,8 +38,7 @@ export default function Header({ isAgentsRunning }: { isAgentsRunning?: boolean 
         confidence: 0.99,
         signal_sources: ['DEMO'],
         reasoning: 'Manual crisis override injected by user.',
-        recommendation: 'Immediate procurement diversion required. Activate SPR drawdown protocol.',
-        source: 'DEMO'
+        recommendation: 'Immediate procurement diversion required. Activate SPR drawdown protocol.'
       } as any]);
     } catch (err) {
       console.error('Injection failed', err);
